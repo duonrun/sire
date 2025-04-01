@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace FiveOrbs\Sire\Tests;
+namespace Duon\Sire\Tests;
 
-use FiveOrbs\Sire\Schema;
+use Duon\Sire\Schema;
 
 class SubSchema extends Schema
 {

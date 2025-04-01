@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use FiveOrbs\Sire\Schema;
-use FiveOrbs\Sire\Tests\SubSchema;
-use FiveOrbs\Sire\Tests\TestCase;
+use Duon\Sire\Schema;
+use Duon\Sire\Tests\SubSchema;
+use Duon\Sire\Tests\TestCase;
 
 uses(TestCase::class);
 

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace FiveOrbs\Sire;
+namespace Duon\Sire;
 
-use FiveOrbs\Sire\Validator;
-use FiveOrbs\Sire\Value;
+use Duon\Sire\Validator;
+use Duon\Sire\Value;
 use ValueError;
 
 /**

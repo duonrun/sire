@@ -1,38 +1,38 @@
 {
-	"name": "fiveorbs/sire",
+	"name": "duon/sire",
 	"description": "A PHP validation library",
 	"type": "library",
 	"license": "MIT",
 	"authors": [
 		{
 			"name": "ebene fünf GmbH",
-			"email": "fiveorbs@ebenefuenf.de",
+			"email": "duon@ebenefuenf.de",
 			"role": "Developer"
 		}
 	],
-	"homepage": "https://fiveorbs.dev/sire",
+	"homepage": "https://duon.dev/sire",
 	"keywords": [
-		"fiveorbs",
+		"duon",
 		"validation"
 	],
 	"autoload": {
 		"psr-4": {
-			"FiveOrbs\\Sire\\": "src/"
+			"Duon\\Sire\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"FiveOrbs\\Sire\\Tests\\": "tests"
+			"Duon\\Sire\\Tests\\": "tests"
 		}
 	},
 	"require": {
 		"php": ">=8.1",
 		"symfony/html-sanitizer": "^7.1",
-		"fiveorbs/dev": "^1.1"
+		"duon/dev": "^1.1"
 	},
 	"require-dev": {
 		"pestphp/pest": "^1",
-		"vimeo/psalm": "^5",
+		"vimeo/psalm": "^6.10",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1"
 	},
 	"config": {

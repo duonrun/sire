@@ -1,10 +1,10 @@
-site_name: FiveOrbs Sire
+site_name: Duon Sire
 copyright: © 2022 ebene fünf GmbH
 nav:
   - index.md
 theme:
-  name: fiveorbs
-repo_url: https://github.com/fiveorbs/sire
+  name: duon
+repo_url: https://github.com/duon/sire
 extra:
   project: Sire
 plugins:

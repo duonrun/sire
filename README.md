@@ -1,4 +1,4 @@
-# FiveOrbs Sire
+# Duon Sire
 
 A PHP 8.1 data validation library
 
@@ -6,4 +6,4 @@ A PHP 8.1 data validation library
 
 ## Installation
 
-    composer require fiveorbs/sire
+    composer require duon/sire

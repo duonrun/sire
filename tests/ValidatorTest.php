@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use FiveOrbs\Sire\Validator;
-use FiveOrbs\Sire\Value;
+use Duon\Sire\Validator;
+use Duon\Sire\Value;
 
 test('Validator validates', function () {
 	$validator = new Validator(

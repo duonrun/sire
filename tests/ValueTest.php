@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use FiveOrbs\Sire\Value;
+use Duon\Sire\Value;
 
 test('Properties numbers', function () {
 	$value = new Value(1, 2, null);
