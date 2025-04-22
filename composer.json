@@ -31,7 +31,7 @@
 		"duon/dev": "^1.1"
 	},
 	"require-dev": {
-		"pestphp/pest": "^1",
+		"pestphp/pest": "^1 || ^3",
 		"vimeo/psalm": "^6.10",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1"
 	},
