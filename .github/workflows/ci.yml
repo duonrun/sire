@@ -10,33 +10,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup PHP extensions
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2
         with:
-          php-version: '8.2'
-          extensions: gd, pcov, curl, xml, zip
+          php-version: '8.5'
+          extensions: pcov, curl, xml, zip, mbstring, json
+          coverage: pcov
+
+      - name: Disable Xdebug
+        run: sudo phpdismod xdebug
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Install packages with composer
         run: composer install
 
-      - name: Run tests
-        run: ./vendor/bin/pest --ci --coverage --min=100
+      - name: Run tests, static type checker and linter
+        run: |
+          php -d pcov.enabled=1 ./vendor/bin/phpunit --testdox --coverage-clover=clover.xml --coverage-text --coverage-php=coverage/cover.php --colors=always
+          ./vendor/bin/coverlyzer coverage/cover.php
+          ./vendor/bin/psalm --output-format=github --shepherd
 
-      - name: Run Psalm
-        run: ./vendor/bin/psalm --output-format=github --shepherd
-
-      - name: Run PHP Code Sniffer
-        run: ./vendor/bin/phpcs -s -p --ignore=tests/Fixtures src tests
-
-  docs:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      - run: pip install mkdocs-duon
-      - run: mkdocs gh-deploy --force
+      - name: Upload coverage report to Codacy
+        continue-on-error: true
+        run: bash <(curl -Ls https://coverage.codacy.com/get.sh)
+        env:
+          CODACY_API_TOKEN: ${{secrets.CODACY_ACCOUNT_TOKEN}}
+          CODACY_ORGANIZATION_PROVIDER: gh
+          CODACY_USERNAME: duonrun
+          CODACY_PROJECT_NAME: sire
