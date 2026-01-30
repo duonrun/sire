@@ -12,6 +12,6 @@ class Value
 	public function __construct(
 		public readonly mixed $value,
 		public readonly mixed $pristine,
-		public readonly null|array|string $error = null,
+		public readonly array|string|null $error = null,
 	) {}
 }
