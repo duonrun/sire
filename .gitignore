@@ -9,3 +9,7 @@ composer.lock
 /tmp
 /vendor
 /coverage
+
+# Local config overrides (not committed)
+/phpunit.xml
+/psalm.xml
