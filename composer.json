@@ -5,12 +5,11 @@
 	"license": "MIT",
 	"authors": [
 		{
-			"name": "ebene fünf GmbH",
-			"email": "duon@ebenefuenf.de",
-			"role": "Developer"
+			"name": "Thomas Ernst",
+			"email": "duon@ebenefuenf.de"
 		}
 	],
-	"homepage": "https://duon.dev/sire",
+	"homepage": "https://duon.run/sire",
 	"keywords": [
 		"duon",
 		"validation"
@@ -26,19 +25,10 @@
 		}
 	},
 	"require": {
-		"php": ">=8.1",
-		"duon/dev": "dev-main",
+		"php": "^8.5",
 		"symfony/html-sanitizer": "^7.1"
 	},
 	"require-dev": {
-		"pestphp/pest": "^1",
-		"vimeo/psalm": "^6.10",
-		"dealerdirect/phpcodesniffer-composer-installer": "^1"
-	},
-	"config": {
-		"allow-plugins": {
-			"pestphp/pest-plugin": true,
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
+		"duon/dev": "^2.5"
 	}
 }
