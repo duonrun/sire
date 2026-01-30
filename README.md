@@ -9,3 +9,7 @@ A PHP validation library
 ```bash
 composer require duon/sire
 ```
+
+## License
+
+This project is licensed under the [MIT license](LICENSE.md).
