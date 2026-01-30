@@ -12,7 +12,7 @@
 			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>
-	<coverage processUncoveredFiles="true" pathCoverage="true">
+	<coverage processUncoveredFiles="true">
 		<include>
 			<directory>src</directory>
 		</include>
