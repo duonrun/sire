@@ -6,6 +6,7 @@ namespace Duon\Sire;
 
 use Duon\Sire\Validator;
 use Duon\Sire\Value;
+use Override;
 use ValueError;
 
 /**
@@ -51,6 +52,7 @@ class Schema implements SchemaInterface
 		return $rule;
 	}
 
+	#[Override]
 	public function validate(array $data, int $level = 1): bool
 	{
 		$this->level = $level;
@@ -99,6 +101,7 @@ class Schema implements SchemaInterface
 		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
+	#[Override]
 	public function errors(bool $grouped = false): array
 	{
 		$result = [
@@ -117,6 +120,7 @@ class Schema implements SchemaInterface
 		return $result;
 	}
 
+	#[Override]
 	public function values(): array
 	{
 		if ($this->cachedValues === null) {
@@ -134,6 +138,7 @@ class Schema implements SchemaInterface
 		return $this->cachedValues;
 	}
 
+	#[Override]
 	public function pristineValues(): array
 	{
 		if ($this->cachedPristine === null) {
