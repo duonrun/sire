@@ -1,8 +1,8 @@
 ---
 title: Introduction
 ---
-Sire Validation Library
-=======================
+
+# Sire Validation Library
 
 Sire is a PHP 8.1 data validation library,
 
