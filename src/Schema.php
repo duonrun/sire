@@ -686,7 +686,13 @@ class Schema implements SchemaInterface
 				// As regex patterns could contain colons ':' and validator
 				// args are separated by colons and split at their position
 				// we need to join them again
-				return preg_match(implode(':', $args), $value->value) === 1;
+				$pattern = implode(':', $args);
+
+				if ($pattern === '') {
+					return false;
+				}
+
+				return preg_match($pattern, $value->value) === 1;
 			},
 			true,
 		);
