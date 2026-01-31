@@ -599,4 +599,35 @@ class SchemaTest extends TestCase
 		};
 		$schema->validate([]);
 	}
+
+	public function testEmptyArraySkipsValidatorWithSkipNull(): void
+	{
+		$testData = [
+			'items' => [],
+		];
+
+		$schema = new Schema();
+		// Using 'in' validator which has skipNull=true
+		$schema->add('items', 'list', 'in:a,b,c');
+
+		// Empty array should skip the 'in' validator (which has skipNull=true)
+		// and not produce an error
+		$this->assertTrue($schema->validate($testData));
+	}
+
+	public function testEmptyRegexPatternFails(): void
+	{
+		$testData = [
+			'text' => 'test',
+		];
+
+		$schema = new Schema();
+		// Regex validator without a pattern (just 'regex' with no argument)
+		$schema->add('text', 'text', 'regex');
+
+		$this->assertFalse($schema->validate($testData));
+		$errors = $schema->errors();
+		$this->assertCount(1, $errors['errors']);
+		$this->assertSame('Does not match the required pattern', $errors['map']['text'][0]);
+	}
 }
