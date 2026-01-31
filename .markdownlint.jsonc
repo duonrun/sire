@@ -1,8 +1,8 @@
 {
 	"default": true,
 
-	// Heading style - consistent within each file (allows atx or setext per file)
-	"MD003": { "style": "consistent" },
+	// Heading style - require atx style (#)
+	"MD003": { "style": "atx" },
 
 	// List styles
 	"MD004": { "style": "dash" },
@@ -17,8 +17,8 @@
 	// Allow duplicate headings in different sections
 	"MD024": { "siblings_only": true },
 
-	// Disable multiple H1 check - frontmatter title is metadata, not a heading
-	"MD025": false,
+	// Ignore frontmatter title - it's metadata, not a document heading
+	"MD025": { "front_matter_title": "" },
 
 	// Allow inline HTML (for Vue components and special syntax)
 	"MD033": false,
