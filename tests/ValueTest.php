@@ -2,28 +2,36 @@
 
 declare(strict_types=1);
 
+namespace Duon\Sire\Tests;
+
 use Duon\Sire\Value;
 
-test('Properties numbers', function () {
-	$value = new Value(1, 2, null);
+class ValueTest extends TestCase
+{
+	public function testPropertiesNumbers(): void
+	{
+		$value = new Value(1, 2, null);
 
-	expect($value->value)->toBe(1);
-	expect($value->pristine)->toBe(2);
-	expect($value->error)->toBe(null);
-});
+		$this->assertSame(1, $value->value);
+		$this->assertSame(2, $value->pristine);
+		$this->assertNull($value->error);
+	}
 
-test('Properties strings', function () {
-	$value = new Value('test1', 'test2', 'test3');
+	public function testPropertiesStrings(): void
+	{
+		$value = new Value('test1', 'test2', 'test3');
 
-	expect($value->value)->toBe('test1');
-	expect($value->pristine)->toBe('test2');
-	expect($value->error)->toBe('test3');
-});
+		$this->assertSame('test1', $value->value);
+		$this->assertSame('test2', $value->pristine);
+		$this->assertSame('test3', $value->error);
+	}
 
-test('Properties arrays', function () {
-	$value = new Value([1, 2, 3], [2, 3, 4], [3, 4, 5]);
+	public function testPropertiesArrays(): void
+	{
+		$value = new Value([1, 2, 3], [2, 3, 4], [3, 4, 5]);
 
-	expect($value->value)->toBe([1, 2, 3]);
-	expect($value->pristine)->toBe([2, 3, 4]);
-	expect($value->error)->toBe([3, 4, 5]);
-});
+		$this->assertSame([1, 2, 3], $value->value);
+		$this->assertSame([2, 3, 4], $value->pristine);
+		$this->assertSame([3, 4, 5], $value->error);
+	}
+}

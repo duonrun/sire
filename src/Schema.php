@@ -355,7 +355,7 @@ class Schema implements SchemaInterface
 	protected function toSubValues(mixed $pristine, SchemaInterface $schema): Value
 	{
 		if ($schema->validate($pristine, $this->level + 1)) {
-			return new Value($pristine, $schema->values());
+			return new Value($schema->values(), $pristine);
 		}
 
 		return new Value($pristine, $pristine, $schema->errors());

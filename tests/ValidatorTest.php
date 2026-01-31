@@ -2,23 +2,29 @@
 
 declare(strict_types=1);
 
+namespace Duon\Sire\Tests;
+
 use Duon\Sire\Validator;
 use Duon\Sire\Value;
 
-test('Validator validates', function () {
-	$validator = new Validator(
-		'same',
-		'Same',
-		function (Value $value, string $compare): bool {
-			return $value->value === $compare;
-		},
-		false,
-	);
+class ValidatorTest extends TestCase
+{
+	public function testValidatorValidates(): void
+	{
+		$validator = new Validator(
+			'same',
+			'Same',
+			function (Value $value, string $compare): bool {
+				return $value->value === $compare;
+			},
+			false,
+		);
 
-	$value = new Value('testvalue', 'testvalue');
-	expect($validator->validate($value, 'testvalue'))->toBe(true);
-	$value = new Value('wrongvalue', 'wrongvalue');
-	expect($validator->validate($value, 'testvalue'))->toBe(false);
-	$value = new Value(null, null);
-	expect($validator->validate($value, 'testvalue'))->toBe(false);
-});
+		$value = new Value('testvalue', 'testvalue');
+		$this->assertTrue($validator->validate($value, 'testvalue'));
+		$value = new Value('wrongvalue', 'wrongvalue');
+		$this->assertFalse($validator->validate($value, 'testvalue'));
+		$value = new Value(null, null);
+		$this->assertFalse($validator->validate($value, 'testvalue'));
+	}
+}
