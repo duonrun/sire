@@ -17,6 +17,7 @@ class Schema implements SchemaInterface
 	public array $errorList = [];  // A list of errors to be displayed in frontend
 	protected array $validators = [];
 	protected int $level = 0;
+	/** @var array<string, Rule> */
 	protected array $rules = [];
 	protected array $errorMap = [];     // A dictonary of errorList with the fieldname as key
 	protected ?array $cachedValues = null;
@@ -401,6 +402,7 @@ class Schema implements SchemaInterface
 						break;
 					case 'schema':
 						$schema = $rule->type;
+						assert($schema instanceof SchemaInterface);
 						$valObj = $this->toSubValues($value, $schema);
 						break;
 					default:
