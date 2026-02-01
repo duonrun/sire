@@ -26,7 +26,7 @@
 	},
 	"require": {
 		"php": "^8.5",
-		"symfony/html-sanitizer": "^7.1"
+		"symfony/html-sanitizer": "^8.0"
 	},
 	"require-dev": {
 		"duon/dev": "^2.5"
