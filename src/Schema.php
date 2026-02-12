@@ -19,10 +19,6 @@ class Schema implements Contract\Schema
 	/** @var array<string, Rule> */
 	protected array $rules = [];
 	protected array $errorMap = [];
-	protected ?ValidationResult $result = null;
-	protected ?array $cachedValues = null;
-	protected ?array $validatedValues = null;
-	protected ?array $cachedPristine = null;
 	protected array $messages = [];
 	/** @var array<string, Contract\TypeCaster> */
 	protected array $typeCasters = [];
@@ -66,22 +62,18 @@ class Schema implements Contract\Schema
 	}
 
 	#[Override]
-	public function validate(array $data, int $level = 1): bool
+	public function validate(array $data, int $level = 1): ValidationResult
 	{
 		$this->level = $level;
 		$this->errorList = [];
 		$this->errorMap = [];
-		$this->result = null;
-		$this->cachedValues = null;
-		$this->cachedPristine = null;
 
 		$this->rules();
 
 		$values = $this->readValues($data);
+		$validatedValues = [];
 
 		if ($this->list) {
-			$this->validatedValues = [];
-
 			foreach ($values as $listIndex => $subValues) {
 				// add an empty array for this item which will be
 				// filled in case of error. Allows to show errors
@@ -90,102 +82,27 @@ class Schema implements Contract\Schema
 					$this->errorMap[$listIndex] = [];
 				}
 
-				$this->validatedValues[] = $this->validateItem(
+				$validatedValues[] = $this->validateItem(
 					$subValues,
 					$listIndex,
 				);
 			}
 		} else {
-			$this->validatedValues = $this->validateItem($values);
+			$validatedValues = $this->validateItem($values);
 		}
 
 		if (count($this->errorList) === 0) {
 			$this->review();
 		}
 
-		$this->result = new ValidationResult(
+		return new ValidationResult(
 			$this->list,
 			$this->title,
 			$this->errorMap,
 			$this->errorList,
+			$this->extractValues($validatedValues),
+			$this->extractPristineValues($validatedValues),
 		);
-
-		return $this->result->isValid();
-	}
-
-	#[Override]
-	public function result(): ValidationResult
-	{
-		if ($this->result !== null) {
-			return $this->result;
-		}
-
-		$this->result = new ValidationResult(
-			$this->list,
-			$this->title,
-			$this->errorMap,
-			$this->errorList,
-		);
-
-		return $this->result;
-	}
-
-	/** @return list<Violation> */
-	public function violations(): array
-	{
-		return $this->result()->violations();
-	}
-
-	#[Override]
-	public function errors(bool $grouped = false): array
-	{
-		return $this->result()->errors($grouped);
-	}
-
-	#[Override]
-	public function values(): array
-	{
-		if ($this->cachedValues === null) {
-			if ($this->list) {
-				$this->cachedValues = [];
-
-				foreach ($this->validatedValues ?? [] as $values) {
-					$this->cachedValues[] = $this->getValues($values);
-				}
-			} else {
-				$this->cachedValues = $this->getValues($this->validatedValues ?? []);
-			}
-		}
-
-		return $this->cachedValues;
-	}
-
-	#[Override]
-	public function pristineValues(): array
-	{
-		if ($this->cachedPristine === null) {
-			if ($this->list) {
-				$this->cachedPristine = [];
-
-				foreach ($this->validatedValues ?? [] as $values) {
-					$this->cachedPristine[] = array_map(
-						function (Value $item): mixed {
-							return $item->pristine;
-						},
-						$values,
-					);
-				}
-			} else {
-				$this->cachedPristine = array_map(
-					function (Value $item): mixed {
-						return $item->pristine;
-					},
-					$this->validatedValues ?? [],
-				);
-			}
-		}
-
-		return $this->cachedPristine;
 	}
 
 	/**
@@ -299,11 +216,11 @@ class Schema implements Contract\Schema
 
 	protected function toSubValues(mixed $pristine, Contract\Schema $schema): Value
 	{
-		if ($schema->validate($pristine, $this->level + 1)) {
-			return new Value($schema->values(), $pristine);
-		}
+		$result = $schema->validate($pristine, $this->level + 1);
 
-		$result = $schema->result();
+		if ($result->isValid()) {
+			return new Value($result->values(), $pristine);
+		}
 
 		return new Value(
 			$pristine,
@@ -313,6 +230,36 @@ class Schema implements Contract\Schema
 				'map' => $result->map(),
 			],
 		);
+	}
+
+	protected function extractValues(array $validatedValues): array
+	{
+		if ($this->list) {
+			$values = [];
+
+			foreach ($validatedValues as $item) {
+				$values[] = $this->getValues($item);
+			}
+
+			return $values;
+		}
+
+		return $this->getValues($validatedValues);
+	}
+
+	protected function extractPristineValues(array $validatedValues): array
+	{
+		if ($this->list) {
+			$pristineValues = [];
+
+			foreach ($validatedValues as $item) {
+				$pristineValues[] = $this->getPristineValues($item);
+			}
+
+			return $pristineValues;
+		}
+
+		return $this->getPristineValues($validatedValues);
 	}
 
 	protected function readFromData(array $data, ?int $listIndex = null): array
@@ -432,6 +379,16 @@ class Schema implements Contract\Schema
 		return array_map(
 			function (Value $item): mixed {
 				return $item->value;
+			},
+			$values,
+		);
+	}
+
+	protected function getPristineValues(array $values): array
+	{
+		return array_map(
+			function (Value $item): mixed {
+				return $item->pristine;
 			},
 			$values,
 		);

@@ -11,13 +11,5 @@ use Duon\Sire\ValidationResult;
  */
 interface Schema
 {
-	public function validate(array $data, int $level = 1): bool;
-
-	public function result(): ValidationResult;
-
-	public function errors(bool $grouped = false): array;
-
-	public function values(): array;
-
-	public function pristineValues(): array;
+	public function validate(array $data, int $level = 1): ValidationResult;
 }

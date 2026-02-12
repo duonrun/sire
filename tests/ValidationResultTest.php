@@ -49,11 +49,15 @@ class ValidationResultTest extends TestCase
 				new Violation('Invalid value', 'Main', 1, null, 'email', 'Email'),
 				new Violation('Invalid nested', null, 2, null, 'other', 'Other'),
 			],
+			['email' => 'x'],
+			['email' => 'x'],
 		);
 
 		$this->assertFalse($result->isValid());
 		$this->assertCount(2, $result->violations());
 		$this->assertSame(['email' => ['Invalid value']], $result->map());
+		$this->assertSame(['email' => 'x'], $result->values());
+		$this->assertSame(['email' => 'x'], $result->pristineValues());
 
 		$errors = $result->errors();
 		$this->assertFalse($errors['grouped']);
@@ -68,7 +72,7 @@ class ValidationResultTest extends TestCase
 
 	public function testValidationResultValid(): void
 	{
-		$result = new ValidationResult(false, null, [], []);
+		$result = new ValidationResult(false, null, [], [], [], []);
 
 		$this->assertTrue($result->isValid());
 		$this->assertCount(0, $result->violations());
