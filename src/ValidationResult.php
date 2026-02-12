@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Duon\Sire;
 
+use JsonSerializable;
+use Override;
+
 /**
  * @psalm-api
  */
-final class ValidationResult
+final class ValidationResult implements JsonSerializable
 {
 	/**
 	 * @param list<Violation> $violations
@@ -72,6 +75,21 @@ final class ValidationResult
 		);
 
 		return $result;
+	}
+
+	/** @return array{isValid: bool, isList: bool, title: ?string, map: array, violations: list<Violation>, values: array<string, mixed>, pristineValues: array<string, mixed>} */
+	#[Override]
+	public function jsonSerialize(): array
+	{
+		return [
+			'isValid' => $this->isValid(),
+			'isList' => $this->isList,
+			'title' => $this->title,
+			'map' => $this->map,
+			'violations' => $this->violations,
+			'values' => $this->values,
+			'pristineValues' => $this->pristineValues,
+		];
 	}
 
 	/** @return list<array{title: ?string, errors: array<int, array{error: string, title: ?string, level: int, item: ?int, field: string, label: string}>}> */

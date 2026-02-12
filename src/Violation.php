@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Duon\Sire;
 
+use JsonSerializable;
+use Override;
+
 /**
  * @psalm-api
  */
-final class Violation
+final class Violation implements JsonSerializable
 {
 	public function __construct(
 		public readonly string $error,
@@ -42,5 +45,12 @@ final class Violation
 			'field' => $this->field,
 			'label' => $this->label,
 		];
+	}
+
+	/** @return array{error: string, title: ?string, level: int, item: ?int, field: string, label: string} */
+	#[Override]
+	public function jsonSerialize(): array
+	{
+		return $this->toArray();
 	}
 }
