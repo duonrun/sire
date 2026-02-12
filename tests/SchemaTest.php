@@ -213,6 +213,16 @@ class SchemaTest extends TestCase
 		$schema->validate(['invalid_field' => false]);
 	}
 
+	public function testUnknownValidator(): void
+	{
+		$this->expectException(ValueError::class);
+		$this->expectExceptionMessage('Unknown validator');
+
+		$schema = new Schema();
+		$schema->add('field', 'text', 'unknown');
+		$schema->validate(['field' => 'value']);
+	}
+
 	public function testUnknownData(): void
 	{
 		$testData = [
