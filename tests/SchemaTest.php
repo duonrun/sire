@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Duon\Sire\Tests;
 
+use Duon\Sire\Contract\ValidatorDefinitionParser as ValidatorDefinitionParserContract;
 use Duon\Sire\Schema;
 use Duon\Sire\Validator;
-use Duon\Sire\ValidatorDefinitionParserInterface;
 use Duon\Sire\ValidatorRegistry;
 use Duon\Sire\Value;
 use ValueError;
@@ -268,7 +268,7 @@ class SchemaTest extends TestCase
 			),
 		]);
 
-		$parser = new class () implements ValidatorDefinitionParserInterface {
+		$parser = new class () implements ValidatorDefinitionParserContract {
 			#[\Override]
 			/** @return array{name: string, args: list<string>} */
 			public function parse(string $validatorDefinition): array

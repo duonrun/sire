@@ -14,7 +14,7 @@ final class Rule
 
 	public function __construct(
 		public readonly string $field,
-		public readonly string|SchemaInterface $type,
+		public readonly string|Contract\Schema $type,
 		public readonly array $validators,
 	) {}
 

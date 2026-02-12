@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Duon\Sire;
+namespace Duon\Sire\Contract;
+
+use Duon\Sire\Validator;
 
 /**
  * @psalm-api
  */
-interface ValidatorRegistryInterface
+interface ValidatorRegistry
 {
 	/** @return array<string, Validator> */
 	public function all(): array;

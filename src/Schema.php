@@ -10,7 +10,7 @@ use ValueError;
 /**
  * @psalm-api
  */
-class Schema implements SchemaInterface
+class Schema implements Contract\Schema
 {
 	public array $errorList = [];  // A list of errors to be displayed in frontend
 	protected array $validators = [];
@@ -22,16 +22,16 @@ class Schema implements SchemaInterface
 	protected ?array $validatedValues = null;
 	protected ?array $cachedPristine = null;
 	protected array $messages = [];
-	protected ValidatorRegistryInterface $validatorRegistry;
-	protected ValidatorDefinitionParserInterface $validatorDefinitionParser;
+	protected Contract\ValidatorRegistry $validatorRegistry;
+	protected Contract\ValidatorDefinitionParser $validatorDefinitionParser;
 
 	public function __construct(
 		protected bool $list = false,
 		protected bool $keepUnknown = false,
 		protected array $langs = [],
 		protected ?string $title = null,
-		?ValidatorRegistryInterface $validatorRegistry = null,
-		?ValidatorDefinitionParserInterface $validatorDefinitionParser = null,
+		?Contract\ValidatorRegistry $validatorRegistry = null,
+		?Contract\ValidatorDefinitionParser $validatorDefinitionParser = null,
 	) {
 		$this->validatorRegistry = $validatorRegistry ?? ValidatorRegistry::withDefaults();
 		$this->validatorDefinitionParser = $validatorDefinitionParser ?? new ValidatorDefinitionParser();
@@ -41,7 +41,7 @@ class Schema implements SchemaInterface
 
 	public function add(
 		string $field,
-		string|SchemaInterface $type,
+		string|Contract\Schema $type,
 		string ...$validators,
 	): Rule {
 		if (!$field) {
@@ -368,7 +368,7 @@ class Schema implements SchemaInterface
 		);
 	}
 
-	protected function toSubValues(mixed $pristine, SchemaInterface $schema): Value
+	protected function toSubValues(mixed $pristine, Contract\Schema $schema): Value
 	{
 		if ($schema->validate($pristine, $this->level + 1)) {
 			return new Value($schema->values(), $pristine);
@@ -412,7 +412,7 @@ class Schema implements SchemaInterface
 						break;
 					case 'schema':
 						$schema = $rule->type;
-						assert($schema instanceof SchemaInterface);
+						assert($schema instanceof Contract\Schema);
 						$valObj = $this->toSubValues($value, $schema);
 						break;
 					default:
