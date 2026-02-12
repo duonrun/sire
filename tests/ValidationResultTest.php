@@ -79,4 +79,28 @@ class ValidationResultTest extends TestCase
 		$this->assertSame([], $result->map());
 		$this->assertCount(0, $result->errors()['errors']);
 	}
+
+	public function testValidationResultJsonSerializable(): void
+	{
+		$result = new ValidationResult(
+			false,
+			'Main',
+			['email' => ['Invalid value']],
+			[
+				new Violation('Invalid value', 'Main', 1, null, 'email', 'Email'),
+			],
+			['email' => 'invalid'],
+			['email' => 'invalid'],
+		);
+
+		$json = json_encode($result, JSON_THROW_ON_ERROR);
+		$data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+
+		$this->assertTrue(isset($data['isValid']));
+		$this->assertSame(false, $data['isValid']);
+		$this->assertSame('Main', $data['title']);
+		$this->assertSame('Invalid value', $data['violations'][0]['error']);
+		$this->assertSame('invalid', $data['values']['email']);
+		$this->assertSame('invalid', $data['pristineValues']['email']);
+	}
 }
