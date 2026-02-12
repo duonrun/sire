@@ -642,6 +642,63 @@ class SchemaTest extends TestCase
 		$this->assertSame('Invalid value', $errors['map']['invalid'][0]);
 	}
 
+	public function testInValidatorWithQuotedAndEscapedValues(): void
+	{
+		$testData = [
+			'quoted_comma' => 'ACME, Inc',
+			'escaped_comma' => 'ACME, Inc',
+			'quoted_colon' => 'http://',
+			'invalid' => 'Nope',
+		];
+
+		$schema = new Schema();
+		$schema->add('quoted_comma', 'text', 'in:"ACME, Inc",Globex');
+		$schema->add('escaped_comma', 'text', 'in:ACME\\, Inc,Globex');
+		$schema->add('quoted_colon', 'text', 'in:"http://","https://"');
+		$schema->add('invalid', 'text', 'in:"ACME, Inc",Globex');
+
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
+		$this->assertCount(1, $errors['errors']);
+		$this->assertSame('Invalid value', $errors['map']['invalid'][0]);
+		$this->assertArrayNotHasKey('quoted_comma', $errors['map']);
+		$this->assertArrayNotHasKey('escaped_comma', $errors['map']);
+		$this->assertArrayNotHasKey('quoted_colon', $errors['map']);
+	}
+
+	public function testEscapedAndQuotedColonArgument(): void
+	{
+		$registry = new ValidatorRegistry([
+			'starts_with' => new Validator(
+				'starts_with',
+				'Must start with %4$s',
+				function (Value $value, string ...$args): bool {
+					$prefix = $args[0] ?? '';
+
+					return str_starts_with((string) $value->value, $prefix);
+				},
+				true,
+			),
+		]);
+
+		$schema = new Schema(validatorRegistry: $registry);
+		$schema->add('escaped', 'text', 'starts_with:http\\://');
+		$schema->add('quoted', 'text', 'starts_with:"http://"');
+		$schema->add('invalid', 'text', 'starts_with:http\\://');
+
+		$result = $schema->validate([
+			'escaped' => 'http://duon.de',
+			'quoted' => 'http://duon.org',
+			'invalid' => 'https://duon.de',
+		]);
+
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
+		$this->assertCount(1, $errors['errors']);
+		$this->assertSame('Must start with http://', $errors['map']['invalid'][0]);
+	}
+
 	public function testSubSchema(): void
 	{
 		$testData = [

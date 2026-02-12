@@ -101,10 +101,7 @@ final class DefaultValidators
 				'in',
 				'Invalid value',
 				function (Value $value, string ...$args) {
-					// Allowed values must be passed as validator arg
-					// seperated by comma.
-					// Like: in:firstval,secondval,thirdval
-					$allowed = explode(',', $args[0]);
+					$allowed = DslSplitter::split($args[0] ?? '', ',');
 
 					return in_array($value->value, $allowed);
 				},
