@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Duon\Sire;
 
-use Duon\Sire\Validator;
-use Duon\Sire\Value;
 use Override;
 use ValueError;
 
@@ -24,13 +22,19 @@ class Schema implements SchemaInterface
 	protected ?array $validatedValues = null;
 	protected ?array $cachedPristine = null;
 	protected array $messages = [];
+	protected ValidatorRegistryInterface $validatorRegistry;
+	protected ValidatorDefinitionParserInterface $validatorDefinitionParser;
 
 	public function __construct(
 		protected bool $list = false,
 		protected bool $keepUnknown = false,
 		protected array $langs = [],
 		protected ?string $title = null,
+		?ValidatorRegistryInterface $validatorRegistry = null,
+		?ValidatorDefinitionParserInterface $validatorDefinitionParser = null,
 	) {
+		$this->validatorRegistry = $validatorRegistry ?? ValidatorRegistry::withDefaults();
+		$this->validatorDefinitionParser = $validatorDefinitionParser ?? new ValidatorDefinitionParser();
 		$this->loadMessages();
 		$this->loadDefaultValidators();
 	}
@@ -234,7 +238,7 @@ class Schema implements SchemaInterface
 		string $validatorDefinition,
 		?int $listIndex,
 	): void {
-		$parsedValidator = $this->parseValidatorDefinition($validatorDefinition);
+		$parsedValidator = $this->validatorDefinitionParser->parse($validatorDefinition);
 		$validatorName = $parsedValidator['name'];
 		$validatorArgs = $parsedValidator['args'];
 
@@ -273,17 +277,6 @@ class Schema implements SchemaInterface
 				$listIndex,
 			);
 		}
-	}
-
-	/** @return array{name: string, args: list<string>} */
-	protected function parseValidatorDefinition(string $validatorDefinition): array
-	{
-		$validatorArray = explode(':', $validatorDefinition);
-
-		return [
-			'name' => $validatorArray[0],
-			'args' => array_slice($validatorArray, 1),
-		];
 	}
 
 	protected function toBool(mixed $pristine, string $label): Value
@@ -610,7 +603,7 @@ class Schema implements SchemaInterface
 
 	protected function loadDefaultValidators(): void
 	{
-		foreach (DefaultValidators::all() as $name => $validator) {
+		foreach ($this->validatorRegistry->all() as $name => $validator) {
 			$this->validators[$name] = $validator;
 		}
 	}
