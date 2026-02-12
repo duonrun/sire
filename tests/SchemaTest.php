@@ -6,9 +6,12 @@ namespace Duon\Sire\Tests;
 
 use Duon\Sire\Contract\ValidatorDefinitionParser as ValidatorDefinitionParserContract;
 use Duon\Sire\Schema;
+use Duon\Sire\TypeCaster;
+use Duon\Sire\TypeCasterRegistry;
 use Duon\Sire\Validator;
 use Duon\Sire\ValidatorRegistry;
 use Duon\Sire\Value;
+use Override;
 use ValueError;
 
 class SchemaTest extends TestCase
@@ -268,8 +271,8 @@ class SchemaTest extends TestCase
 			),
 		]);
 
-		$parser = new class () implements ValidatorDefinitionParserContract {
-			#[\Override]
+		$parser = new class implements ValidatorDefinitionParserContract {
+			#[Override]
 			/** @return array{name: string, args: list<string>} */
 			public function parse(string $validatorDefinition): array
 			{
@@ -291,6 +294,32 @@ class SchemaTest extends TestCase
 		$this->assertTrue($schema->validate(['field' => 'foobar']));
 		$this->assertFalse($schema->validate(['field' => 'barfoo']));
 		$this->assertSame('Must start with foo', $schema->errors()['map']['field'][0]);
+	}
+
+	public function testCustomTypeCasterRegistry(): void
+	{
+		$registry = TypeCasterRegistry::withDefaults([
+			'bool' => 'Invalid boolean',
+			'float' => 'Invalid number',
+			'int' => 'Invalid number',
+			'list' => 'Invalid list',
+		])->with(
+			'slug',
+			new TypeCaster(function (mixed $pristine, string $label): Value {
+				if (!is_string($pristine) || !preg_match('/^[a-z0-9-]+$/', $pristine)) {
+					return new Value($pristine, $pristine, 'Invalid slug');
+				}
+
+				return new Value($pristine, $pristine);
+			}),
+		);
+
+		$schema = new Schema(typeCasterRegistry: $registry);
+		$schema->add('slug', 'slug', 'required');
+
+		$this->assertTrue($schema->validate(['slug' => 'test-slug']));
+		$this->assertFalse($schema->validate(['slug' => 'Not A Slug']));
+		$this->assertSame('Invalid slug', $schema->errors()['map']['slug'][0]);
 	}
 
 	public function testUnknownData(): void

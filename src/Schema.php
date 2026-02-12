@@ -22,8 +22,11 @@ class Schema implements Contract\Schema
 	protected ?array $validatedValues = null;
 	protected ?array $cachedPristine = null;
 	protected array $messages = [];
+	/** @var array<string, Contract\TypeCaster> */
+	protected array $typeCasters = [];
 	protected Contract\ValidatorRegistry $validatorRegistry;
 	protected Contract\ValidatorDefinitionParser $validatorDefinitionParser;
+	protected Contract\TypeCasterRegistry $typeCasterRegistry;
 
 	public function __construct(
 		protected bool $list = false,
@@ -32,11 +35,14 @@ class Schema implements Contract\Schema
 		protected ?string $title = null,
 		?Contract\ValidatorRegistry $validatorRegistry = null,
 		?Contract\ValidatorDefinitionParser $validatorDefinitionParser = null,
+		?Contract\TypeCasterRegistry $typeCasterRegistry = null,
 	) {
+		$this->loadMessages();
 		$this->validatorRegistry = $validatorRegistry ?? ValidatorRegistry::withDefaults();
 		$this->validatorDefinitionParser = $validatorDefinitionParser ?? new ValidatorDefinitionParser();
-		$this->loadMessages();
+		$this->typeCasterRegistry = $typeCasterRegistry ?? TypeCasterRegistry::withDefaults($this->messages);
 		$this->loadDefaultValidators();
+		$this->loadDefaultTypeCasters();
 	}
 
 	public function add(
@@ -95,15 +101,6 @@ class Schema implements Contract\Schema
 		}
 
 		return count($this->errorList) === 0;
-	}
-
-	public function isAssoc(array $arr): bool
-	{
-		if ([] === $arr) {
-			return false;
-		}
-
-		return array_keys($arr) !== range(0, count($arr) - 1);
 	}
 
 	#[Override]
@@ -279,95 +276,6 @@ class Schema implements Contract\Schema
 		}
 	}
 
-	protected function toBool(mixed $pristine, string $label): Value
-	{
-		if (is_bool($pristine)) {
-			return new Value($pristine, $pristine);
-		}
-
-		if (!$pristine) {
-			return new Value(false, $pristine);
-		}
-
-		$tmp = strtolower((string) $pristine);
-
-		if (in_array($tmp, ['1', 'on', 'true', 'yes'])) {
-			return new Value(true, $pristine);
-		}
-
-		if (in_array($tmp, ['0', 'off', 'false', 'no', 'null'])) {
-			return new Value(false, $pristine);
-		}
-
-		return new Value(
-			$pristine,
-			$pristine,
-			sprintf($this->messages['bool'], $label),
-		);
-	}
-
-	protected function toText(mixed $pristine): Value
-	{
-		if (empty($pristine)) {
-			return new Value(null, $pristine);
-		}
-
-		return new Value((string) $pristine, $pristine);
-	}
-
-	protected function toList(mixed $pristine, string $label): Value
-	{
-		if (is_array($pristine) && !$this->isAssoc($pristine)) {
-			return new Value($pristine, $pristine);
-		}
-
-		return new Value(
-			$pristine,
-			$pristine,
-			sprintf($this->messages['list'], $label),
-		);
-	}
-
-	protected function toFloat(mixed $pristine, string $label): Value
-	{
-		if (is_float($pristine) || is_null($pristine)) {
-			return new Value($pristine, $pristine);
-		}
-
-		if (is_int($pristine)) {
-			return new Value((float) $pristine, $pristine);
-		}
-
-		$tmp = trim((string) $pristine);
-
-		if (preg_match('/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/', $tmp)) {
-			return new Value((float) $tmp, $pristine);
-		}
-
-		return new Value(
-			$pristine,
-			$pristine,
-			sprintf($this->messages['float'], $label),
-		);
-	}
-
-	protected function toInt(mixed $pristine, string $label): Value
-	{
-		if (is_int($pristine) || is_null($pristine)) {
-			return new Value($pristine, $pristine);
-		}
-
-		if (preg_match('/^([0-9]|-[1-9]|-?[1-9][0-9]*)$/i', trim($pristine))) {
-			return new Value((int) $pristine, $pristine);
-		}
-
-		return new Value(
-			$pristine,
-			$pristine,
-			sprintf($this->messages['int'], $label),
-		);
-	}
-
 	protected function toSubValues(mixed $pristine, Contract\Schema $schema): Value
 	{
 		if ($schema->validate($pristine, $this->level + 1)) {
@@ -386,37 +294,20 @@ class Schema implements Contract\Schema
 
 			if ($rule) {
 				$label = $rule->name();
+				$type = $rule->type();
 
-				// if (is_string($rule->type)) {
-				// $typeArray = explode(':', $rule->type);
-				// $typeName = $typeArray[0];
-				// } else {
-				// $typeName = 'schema';
-				// }
+				if ($type === 'schema') {
+					$schema = $rule->type;
+					assert($schema instanceof Contract\Schema);
+					$valObj = $this->toSubValues($value, $schema);
+				} else {
+					$caster = $this->typeCasters[$type] ?? null;
 
-				switch ($rule->type()) {
-					case 'text':
-						$valObj = $this->toText($value);
-						break;
-					case 'int':
-						$valObj = $this->toInt($value, $label);
-						break;
-					case 'bool':
-						$valObj = $this->toBool($value, $label);
-						break;
-					case 'float':
-						$valObj = $this->toFloat($value, $label);
-						break;
-					case 'list':
-						$valObj = $this->toList($value, $label);
-						break;
-					case 'schema':
-						$schema = $rule->type;
-						assert($schema instanceof Contract\Schema);
-						$valObj = $this->toSubValues($value, $schema);
-						break;
-					default:
+					if ($caster === null) {
 						throw new ValueError('Wrong schema type');
+					}
+
+					$valObj = $caster->cast($value, $label);
 				}
 
 				if ($valObj->error !== null) {
@@ -605,6 +496,13 @@ class Schema implements Contract\Schema
 	{
 		foreach ($this->validatorRegistry->all() as $name => $validator) {
 			$this->validators[$name] = $validator;
+		}
+	}
+
+	protected function loadDefaultTypeCasters(): void
+	{
+		foreach ($this->typeCasterRegistry->all() as $name => $caster) {
+			$this->typeCasters[$name] = $caster;
 		}
 	}
 }
