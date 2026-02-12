@@ -234,9 +234,15 @@ class Schema implements SchemaInterface
 		string $validatorDefinition,
 		?int $listIndex,
 	): void {
-		$validatorArray = explode(':', $validatorDefinition);
-		$validatorName = $validatorArray[0];
-		$validatorArgs = array_slice($validatorArray, 1);
+		$parsedValidator = $this->parseValidatorDefinition($validatorDefinition);
+		$validatorName = $parsedValidator['name'];
+		$validatorArgs = $parsedValidator['args'];
+
+		if (!isset($this->validators[$validatorName])) {
+			throw new ValueError(
+				sprintf('Unknown validator "%s" in field "%s"', $validatorName, $field),
+			);
+		}
 
 		$validator = $this->validators[$validatorName];
 
@@ -267,6 +273,17 @@ class Schema implements SchemaInterface
 				$listIndex,
 			);
 		}
+	}
+
+	/** @return array{name: string, args: list<string>} */
+	protected function parseValidatorDefinition(string $validatorDefinition): array
+	{
+		$validatorArray = explode(':', $validatorDefinition);
+
+		return [
+			'name' => $validatorArray[0],
+			'args' => array_slice($validatorArray, 1),
+		];
 	}
 
 	protected function toBool(mixed $pristine, string $label): Value
@@ -588,131 +605,13 @@ class Schema implements SchemaInterface
 			'float' => 'Invalid number',
 			'int' => 'Invalid number',
 			'list' => 'Invalid list',
-
-			// Validators:
-			'required' => 'Required',
-			'email' => 'Invalid email address',
-			'minlen' => 'Shorter than the minimum length of %4$s characters',
-			'maxlen' => 'Exeeds the maximum length of %4$s characters',
-			'min' => 'Lower than the required minimum of %4$s',
-			'max' => 'Higher than the allowed maximum of %4$s',
-			'regex' => 'Does not match the required pattern',
-			'in' => 'Invalid value',
 		];
 	}
 
 	protected function loadDefaultValidators(): void
 	{
-		foreach ($this->defaultValidatorDefinitions() as $name => $definition) {
-			$this->registerValidator(
-				$name,
-				$definition['validator'],
-				$definition['skipNull'],
-			);
+		foreach (DefaultValidators::all() as $name => $validator) {
+			$this->validators[$name] = $validator;
 		}
-	}
-
-	/** @return array<string, array{validator: \Closure, skipNull: bool}> */
-	protected function defaultValidatorDefinitions(): array
-	{
-		return [
-			'required' => [
-				/** @psalm-suppress UnusedClosureParam */
-				'validator' => function (Value $value, string ...$args) {
-					$val = $value->value;
-
-					if (is_null($val)) {
-						return false;
-					}
-
-					if (is_array($val) && count($val) === 0) {
-						return false;
-					}
-
-					return true;
-				},
-				'skipNull' => false,
-			],
-			'email' => [
-				'validator' => function (Value $value, string ...$args) {
-					$email = filter_var(
-						trim((string) $value->value),
-						\FILTER_VALIDATE_EMAIL,
-					);
-
-					if ($email !== false && ($args[0] ?? null) === 'checkdns') {
-						[, $mailDomain] = explode('@', $email);
-
-						return checkdnsrr($mailDomain, 'MX');
-					}
-
-					return $email !== false;
-				},
-				'skipNull' => true,
-			],
-			'minlen' => [
-				'validator' => function (Value $value, string ...$args) {
-					return strlen($value->value) >= (int) $args[0];
-				},
-				'skipNull' => true,
-			],
-			'maxlen' => [
-				'validator' => function (Value $value, string ...$args) {
-					return strlen($value->value) <= (int) $args[0];
-				},
-				'skipNull' => true,
-			],
-			'min' => [
-				'validator' => function (Value $value, string ...$args) {
-					return (float) $value->value >= (float) $args[0];
-				},
-				'skipNull' => true,
-			],
-			'max' => [
-				'validator' => function (Value $value, string ...$args) {
-					return $value->value <= (float) $args[0];
-				},
-				'skipNull' => true,
-			],
-			'regex' => [
-				'validator' => function (Value $value, string ...$args) {
-					// As regex patterns could contain colons ':' and validator
-					// args are separated by colons and split at their position
-					// we need to join them again
-					$pattern = implode(':', $args);
-
-					if ($pattern === '') {
-						return false;
-					}
-
-					return preg_match($pattern, $value->value) === 1;
-				},
-				'skipNull' => true,
-			],
-			'in' => [
-				'validator' => function (Value $value, string ...$args) {
-					// Allowed values must be passed as validator arg
-					// seperated by comma.
-					// Like: in:firstval,secondval,thirdval
-					$allowed = explode(',', $args[0]);
-
-					return in_array($value->value, $allowed);
-				},
-				'skipNull' => true,
-			],
-		];
-	}
-
-	protected function registerValidator(
-		string $name,
-		\Closure $validator,
-		bool $skipNull,
-	): void {
-		$this->validators[$name] = new Validator(
-			$name,
-			$this->messages[$name],
-			$validator,
-			$skipNull,
-		);
 	}
 }
