@@ -33,8 +33,9 @@ class SchemaTest extends TestCase
 		$schema->add('valid_int_1', 'int')->label('Int');
 		$schema->add('valid_int_2', 'int')->label('Int');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertSame('Invalid number', $errors['errors'][0]['error']);
 		$this->assertSame('invalid_int_1', $errors['errors'][0]['field']);
 		$this->assertSame('Int 1', $errors['errors'][0]['label']);
@@ -46,12 +47,12 @@ class SchemaTest extends TestCase
 		$this->assertFalse(isset($errors['map']['valid_int_1']));
 		$this->assertFalse(isset($errors['map']['valid_int_2']));
 
-		$values = $schema->values();
+		$values = $result->values();
 		$this->assertSame(13, $values['valid_int_1']);
 		$this->assertSame(13, $values['valid_int_2']);
 		$this->assertSame('23invalid', $values['invalid_int_1']);
 
-		$pristine = $schema->pristineValues();
+		$pristine = $result->pristineValues();
 		$this->assertSame('13', $pristine['valid_int_1']);
 		$this->assertSame(13, $pristine['valid_int_2']);
 	}
@@ -73,8 +74,9 @@ class SchemaTest extends TestCase
 		$schema->add('valid_float_3', 'float');
 		$schema->add('valid_float_4', 'float');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertSame('Invalid number', $errors['errors'][0]['error']);
 		$this->assertSame('Invalid number', $errors['map']['invalid_float'][0]);
 		$this->assertFalse(isset($errors['map']['valid_float_1']));
@@ -109,8 +111,9 @@ class SchemaTest extends TestCase
 		$schema->add('invalid_bool_1', 'bool')->label('Bool 1');
 		$schema->add('invalid_bool_2', 'bool');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertSame('Invalid boolean', $errors['errors'][0]['error']);
 		$this->assertSame('Invalid boolean', $errors['errors'][1]['error']);
 		$this->assertSame('Invalid boolean', $errors['map']['invalid_bool_1'][0]);
@@ -118,7 +121,7 @@ class SchemaTest extends TestCase
 		$this->assertFalse(isset($errors['map']['valid_bool_1']));
 		$this->assertFalse(isset($errors['map']['valid_bool_2']));
 
-		$values = $schema->values();
+		$values = $result->values();
 		$this->assertSame(true, $values['valid_bool_1']);
 		$this->assertSame(false, $values['valid_bool_2']);
 		$this->assertSame(true, $values['valid_bool_3']);
@@ -128,7 +131,7 @@ class SchemaTest extends TestCase
 		$this->assertSame(false, $values['valid_bool_7']);
 		$this->assertSame(false, $values['valid_bool_8']);
 
-		$pristine = $schema->pristineValues();
+		$pristine = $result->pristineValues();
 		$this->assertSame('yes', $pristine['valid_bool_3']);
 		$this->assertSame('invalid', $pristine['invalid_bool_1']);
 		$this->assertSame(13, $pristine['invalid_bool_2']);
@@ -150,10 +153,11 @@ class SchemaTest extends TestCase
 		$schema->add('valid_text_4', 'text');
 		$schema->add('valid_text_5', 'text');
 
-		$this->assertTrue($schema->validate($testData));
-		$this->assertCount(0, $schema->errors()['errors']);
+		$result = $schema->validate($testData);
+		$this->assertTrue($result->isValid());
+		$this->assertCount(0, $result->errors()['errors']);
 
-		$values = $schema->values();
+		$values = $result->values();
 
 		$this->assertSame('Lorem ipsum', $values['valid_text_1']);
 		$this->assertNull($values['valid_text_2']);
@@ -161,7 +165,7 @@ class SchemaTest extends TestCase
 		$this->assertSame('<a href="/test">Test</a>', $values['valid_text_4']);
 		$this->assertNull($values['valid_text_5']);
 
-		$pristine = $schema->pristineValues();
+		$pristine = $result->pristineValues();
 		$this->assertSame(false, $pristine['valid_text_2']);
 		$this->assertNull($pristine['valid_text_5']);
 	}
@@ -175,7 +179,8 @@ class SchemaTest extends TestCase
 		$schema = new Schema();
 		$schema->add('valid_text', 'text', 'maxlen');
 
-		$this->assertTrue($schema->validate($testData));
+		$result = $schema->validate($testData);
+		$this->assertTrue($result->isValid());
 	}
 
 	public function testTypeList(): void
@@ -193,8 +198,9 @@ class SchemaTest extends TestCase
 		$schema->add('invalid_list_1', 'list')->label('List 1');
 		$schema->add('invalid_list_2', 'list');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertSame('Invalid list', $errors['errors'][0]['error']);
 		$this->assertSame('Invalid list', $errors['errors'][1]['error']);
 		$this->assertSame('Invalid list', $errors['map']['invalid_list_1'][0]);
@@ -202,11 +208,11 @@ class SchemaTest extends TestCase
 		$this->assertFalse(isset($errors['map']['valid_list_1']));
 		$this->assertFalse(isset($errors['map']['valid_list_2']));
 
-		$values = $schema->values();
+		$values = $result->values();
 		$this->assertSame([1, 2], $values['valid_list_1']);
 		$this->assertSame([['key' => 'data']], $values['valid_list_2']);
 
-		$pristine = $schema->pristineValues();
+		$pristine = $result->pristineValues();
 		$this->assertSame([1, 2], $pristine['valid_list_1']);
 		$this->assertSame('invalid', $pristine['invalid_list_1']);
 		$this->assertSame(13, $pristine['invalid_list_2']);
@@ -251,11 +257,14 @@ class SchemaTest extends TestCase
 		$schema = new Schema(validatorRegistry: $registry);
 		$schema->add('field', 'text', 'required', 'starts_with:foo');
 
-		$this->assertTrue($schema->validate(['field' => 'foobar']));
-		$this->assertFalse($schema->validate(['field' => 'barfoo']));
-		$this->assertSame('Must start with foo', $schema->errors()['map']['field'][0]);
-		$this->assertFalse($schema->validate(['field' => '']));
-		$this->assertSame('Required', $schema->errors()['map']['field'][0]);
+		$result = $schema->validate(['field' => 'foobar']);
+		$this->assertTrue($result->isValid());
+		$result = $schema->validate(['field' => 'barfoo']);
+		$this->assertFalse($result->isValid());
+		$this->assertSame('Must start with foo', $result->errors()['map']['field'][0]);
+		$result = $schema->validate(['field' => '']);
+		$this->assertFalse($result->isValid());
+		$this->assertSame('Required', $result->errors()['map']['field'][0]);
 	}
 
 	public function testCustomValidatorDefinitionParser(): void
@@ -293,9 +302,11 @@ class SchemaTest extends TestCase
 		);
 		$schema->add('field', 'text', 'starts_with|foo');
 
-		$this->assertTrue($schema->validate(['field' => 'foobar']));
-		$this->assertFalse($schema->validate(['field' => 'barfoo']));
-		$this->assertSame('Must start with foo', $schema->errors()['map']['field'][0]);
+		$result = $schema->validate(['field' => 'foobar']);
+		$this->assertTrue($result->isValid());
+		$result = $schema->validate(['field' => 'barfoo']);
+		$this->assertFalse($result->isValid());
+		$this->assertSame('Must start with foo', $result->errors()['map']['field'][0]);
 	}
 
 	public function testCustomTypeCasterRegistry(): void
@@ -319,9 +330,11 @@ class SchemaTest extends TestCase
 		$schema = new Schema(typeCasterRegistry: $registry);
 		$schema->add('slug', 'slug', 'required');
 
-		$this->assertTrue($schema->validate(['slug' => 'test-slug']));
-		$this->assertFalse($schema->validate(['slug' => 'Not A Slug']));
-		$this->assertSame('Invalid slug', $schema->errors()['map']['slug'][0]);
+		$result = $schema->validate(['slug' => 'test-slug']);
+		$this->assertTrue($result->isValid());
+		$result = $schema->validate(['slug' => 'Not A Slug']);
+		$this->assertFalse($result->isValid());
+		$this->assertSame('Invalid slug', $result->errors()['map']['slug'][0]);
 	}
 
 	public function testValidationResult(): void
@@ -329,9 +342,7 @@ class SchemaTest extends TestCase
 		$schema = new Schema();
 		$schema->add('email', 'text', 'required', 'email');
 
-		$this->assertFalse($schema->validate(['email' => 'invalid']));
-
-		$result = $schema->result();
+		$result = $schema->validate(['email' => 'invalid']);
 		$this->assertInstanceOf(ValidationResult::class, $result);
 		$this->assertFalse($result->isValid());
 		$this->assertSame('Invalid email address', $result->map()['email'][0]);
@@ -342,21 +353,20 @@ class SchemaTest extends TestCase
 		$this->assertSame('email', $violations[0]->field);
 		$this->assertSame('Invalid email address', $violations[0]->error);
 
-		$this->assertSame(
-			$schema->errors(),
-			$result->errors(),
-		);
+		$this->assertSame('invalid', $result->values()['email']);
+		$this->assertSame('invalid', $result->pristineValues()['email']);
 	}
 
 	public function testResultBeforeValidation(): void
 	{
 		$schema = new Schema();
 
-		$result = $schema->result();
+		$result = $schema->validate([]);
 		$this->assertTrue($result->isValid());
 		$this->assertCount(0, $result->violations());
 		$this->assertSame([], $result->map());
-		$this->assertCount(0, $schema->violations());
+		$this->assertSame([], $result->values());
+		$this->assertSame([], $result->pristineValues());
 	}
 
 	public function testWrongErrorType(): void
@@ -388,15 +398,16 @@ class SchemaTest extends TestCase
 		$schema->add('unknown_1', 'text');
 		$schema->add('unknown_2', 'int');
 
-		$this->assertTrue($schema->validate($testData));
-		$this->assertCount(0, $schema->errors()['errors']);
+		$result = $schema->validate($testData);
+		$this->assertTrue($result->isValid());
+		$this->assertCount(0, $result->errors()['errors']);
 
-		$values = $schema->values();
+		$values = $result->values();
 		$this->assertSame('Test', $values['unknown_1']);
 		$this->assertSame(13, $values['unknown_2']);
 		$this->assertFalse(isset($values['unknown_3']));
 
-		$pristine = $schema->pristineValues();
+		$pristine = $result->pristineValues();
 		$this->assertSame('Test', $pristine['unknown_1']);
 		$this->assertSame('13', $pristine['unknown_2']);
 		$this->assertFalse(isset($pristine['unknown_3']));
@@ -405,16 +416,17 @@ class SchemaTest extends TestCase
 		$schema->add('unknown_1', 'text');
 		$schema->add('unknown_2', 'int');
 
-		$this->assertTrue($schema->validate($testData));
-		$this->assertCount(0, $schema->errors()['errors']);
+		$result = $schema->validate($testData);
+		$this->assertTrue($result->isValid());
+		$this->assertCount(0, $result->errors()['errors']);
 
-		$values = $schema->values();
+		$values = $result->values();
 		$this->assertSame('Test', $values['unknown_1']);
 		$this->assertSame(13, $values['unknown_2']);
 		$this->assertSame('Unknown', $values['unknown_3']);
 		$this->assertSame('23', $values['unknown_4']);
 
-		$pristine = $schema->pristineValues();
+		$pristine = $result->pristineValues();
 		$this->assertSame('Test', $pristine['unknown_1']);
 		$this->assertSame('13', $pristine['unknown_2']);
 		$this->assertSame('Unknown', $pristine['unknown_3']);
@@ -443,8 +455,9 @@ class SchemaTest extends TestCase
 		$schema->add('invalid_2', 'float', 'required')->label('Required 2');
 		$schema->add('invalid_3', 'list', 'required');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(3, $errors['errors']);
 		$this->assertSame('Required', $errors['map']['invalid_1'][0]);
 		$this->assertSame('Required', $errors['map']['invalid_2'][0]);
@@ -462,8 +475,9 @@ class SchemaTest extends TestCase
 		$schema->add('invalid_email', 'text', 'email')->label('Email');
 		$schema->add('valid_email', 'text', 'email');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
 		$this->assertSame('Invalid email address', $errors['map']['invalid_email'][0]);
 	}
@@ -479,8 +493,9 @@ class SchemaTest extends TestCase
 		$schema->add('invalid_email', 'text', 'email:checkdns');
 		$schema->add('valid_email', 'text', 'email:checkdns');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
 		$this->assertSame('Invalid email address', $errors['map']['invalid_email'][0]);
 	}
@@ -504,8 +519,9 @@ class SchemaTest extends TestCase
 		$schema->add('invalid_1', 'int', 'min:10')->label('Min');
 		$schema->add('invalid_2', 'float', 'min:10');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
 		$this->assertSame('Lower than the required minimum of 10', $errors['map']['invalid_1'][0]);
 		$this->assertSame('Lower than the required minimum of 10', $errors['map']['invalid_2'][0]);
@@ -530,8 +546,9 @@ class SchemaTest extends TestCase
 		$schema->add('invalid_1', 'int', 'max:13');
 		$schema->add('invalid_2', 'float', 'max:13')->label('Max');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
 		$this->assertSame('Higher than the allowed maximum of 13', $errors['map']['invalid_1'][0]);
 		$this->assertSame('Higher than the allowed maximum of 13', $errors['map']['invalid_2'][0]);
@@ -550,8 +567,9 @@ class SchemaTest extends TestCase
 		$schema->add('valid_2', 'text', 'minlen:10');
 		$schema->add('invalid', 'text', 'minlen:10');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
 		$this->assertSame(
 			'Shorter than the minimum length of 10 characters',
@@ -572,8 +590,9 @@ class SchemaTest extends TestCase
 		$schema->add('valid_2', 'text', 'maxlen:10');
 		$schema->add('invalid', 'text', 'maxlen:10');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
 		$this->assertSame(
 			'Exeeds the maximum length of 10 characters',
@@ -596,8 +615,9 @@ class SchemaTest extends TestCase
 		$schema->add('valid_colon', 'text', 'regex:/^[a-z:]+:$/');
 		$schema->add('invalid_colon', 'text', 'regex:/^[a-z:]+:$/');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
 		$this->assertSame('Does not match the required pattern', $errors['map']['invalid'][0]);
 	}
@@ -615,8 +635,9 @@ class SchemaTest extends TestCase
 		$schema->add('valid2', 'text', 'in:valid,alsovalid');
 		$schema->add('invalid', 'text', 'in:valid,alsovalid');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
 		$this->assertSame('Invalid value', $errors['map']['invalid'][0]);
 	}
@@ -637,7 +658,8 @@ class SchemaTest extends TestCase
 		$schema->add('text', 'text', 'required');
 		$schema->add('schema', new SubSchema())->label('Schema');
 
-		$this->assertTrue($schema->validate($testData));
+		$result = $schema->validate($testData);
+		$this->assertTrue($result->isValid());
 	}
 
 	public function testInvalidDataInSubSchema(): void
@@ -655,8 +677,9 @@ class SchemaTest extends TestCase
 		$schema->add('text', 'text', 'required');
 		$schema->add('schema', new SubSchema());
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
 		$this->assertSame('Required', $errors['map']['text'][0]);
 		$this->assertSame('Invalid email address', $errors['map']['schema']['inner_email'][0]);
@@ -693,8 +716,9 @@ class SchemaTest extends TestCase
 		$schema->add('single_schema', new SubSchema());
 		$schema->add('list_schema', new SubSchema(true));
 
-		$this->assertTrue($schema->validate($testData));
-		$values = $schema->values();
+		$result = $schema->validate($testData);
+		$this->assertTrue($result->isValid());
+		$values = $result->values();
 		$this->assertSame(13, $values[0]['int']);
 		$this->assertSame(23, $values[0]['single_schema']['inner_int']);
 		$this->assertNull($values[0]['list_schema']);
@@ -703,7 +727,7 @@ class SchemaTest extends TestCase
 		$this->assertSame('example@example.com', $values[1]['list_schema'][0]['inner_email']);
 		$this->assertSame(47, $values[1]['list_schema'][1]['inner_int']);
 
-		$pristineValues = $schema->pristineValues();
+		$pristineValues = $result->pristineValues();
 		$this->assertSame(13, $pristineValues[0]['int']);
 		$this->assertSame(23, $pristineValues[0]['single_schema']['inner_int']);
 		$this->assertNull($pristineValues[0]['list_schema']);
@@ -718,8 +742,9 @@ class SchemaTest extends TestCase
 		$testData = $this->getListData();
 		$schema = $this->getListSchema();
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(5, $errors);
 		$this->assertSame('Required', $errors['map'][0]['text'][0]);
 		$this->assertSame('Required', $errors['map'][0]['single_schema']['inner_int'][0]);
@@ -737,8 +762,9 @@ class SchemaTest extends TestCase
 		$testData = $this->getListData();
 		$schema = $this->getListSchema();
 
-		$this->assertFalse($schema->validate($testData));
-		$groups = $schema->errors(grouped: true)['errors'];
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$groups = $result->errors(grouped: true)['errors'];
 		$this->assertCount(3, $groups);
 		$this->assertSame('List Root', $groups[0]['title']);
 		$this->assertSame('Invalid email address', $groups[0]['errors'][2]['error']);
@@ -774,7 +800,8 @@ class SchemaTest extends TestCase
 
 		// Empty array should skip the 'in' validator (which has skipNull=true)
 		// and not produce an error
-		$this->assertTrue($schema->validate($testData));
+		$result = $schema->validate($testData);
+		$this->assertTrue($result->isValid());
 	}
 
 	public function testEmptyRegexPatternFails(): void
@@ -787,8 +814,9 @@ class SchemaTest extends TestCase
 		// Regex validator without a pattern (just 'regex' with no argument)
 		$schema->add('text', 'text', 'regex');
 
-		$this->assertFalse($schema->validate($testData));
-		$errors = $schema->errors();
+		$result = $schema->validate($testData);
+		$this->assertFalse($result->isValid());
+		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
 		$this->assertSame('Does not match the required pattern', $errors['map']['text'][0]);
 	}

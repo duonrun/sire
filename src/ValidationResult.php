@@ -11,12 +11,16 @@ final class ValidationResult
 {
 	/**
 	 * @param list<Violation> $violations
+	 * @param array<string, mixed> $values
+	 * @param array<string, mixed> $pristineValues
 	 */
 	public function __construct(
 		public readonly bool $isList,
 		public readonly ?string $title,
 		private array $map,
 		private array $violations,
+		private array $values,
+		private array $pristineValues,
 	) {}
 
 	public function isValid(): bool
@@ -33,6 +37,18 @@ final class ValidationResult
 	public function map(): array
 	{
 		return $this->map;
+	}
+
+	/** @return array<string, mixed> */
+	public function values(): array
+	{
+		return $this->values;
+	}
+
+	/** @return array<string, mixed> */
+	public function pristineValues(): array
+	{
+		return $this->pristineValues;
 	}
 
 	public function errors(bool $grouped = false): array
