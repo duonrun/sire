@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Duon\Sire\Tests;
 
 use Duon\Sire\Schema;
+use Duon\Sire\Validator;
+use Duon\Sire\ValidatorDefinitionParserInterface;
+use Duon\Sire\ValidatorRegistry;
+use Duon\Sire\Value;
 use ValueError;
 
 class SchemaTest extends TestCase
@@ -221,6 +225,72 @@ class SchemaTest extends TestCase
 		$schema = new Schema();
 		$schema->add('field', 'text', 'unknown');
 		$schema->validate(['field' => 'value']);
+	}
+
+	public function testCustomValidatorRegistry(): void
+	{
+		$registry = ValidatorRegistry::withDefaults()->with(
+			'starts_with',
+			new Validator(
+				'starts_with',
+				'Must start with %4$s',
+				function (Value $value, string ...$args): bool {
+					$prefix = $args[0] ?? '';
+
+					return str_starts_with((string) $value->value, $prefix);
+				},
+				true,
+			),
+		);
+
+		$schema = new Schema(validatorRegistry: $registry);
+		$schema->add('field', 'text', 'required', 'starts_with:foo');
+
+		$this->assertTrue($schema->validate(['field' => 'foobar']));
+		$this->assertFalse($schema->validate(['field' => 'barfoo']));
+		$this->assertSame('Must start with foo', $schema->errors()['map']['field'][0]);
+		$this->assertFalse($schema->validate(['field' => '']));
+		$this->assertSame('Required', $schema->errors()['map']['field'][0]);
+	}
+
+	public function testCustomValidatorDefinitionParser(): void
+	{
+		$registry = new ValidatorRegistry([
+			'starts_with' => new Validator(
+				'starts_with',
+				'Must start with %4$s',
+				function (Value $value, string ...$args): bool {
+					$prefix = $args[0] ?? '';
+
+					return str_starts_with((string) $value->value, $prefix);
+				},
+				true,
+			),
+		]);
+
+		$parser = new class () implements ValidatorDefinitionParserInterface {
+			#[\Override]
+			/** @return array{name: string, args: list<string>} */
+			public function parse(string $validatorDefinition): array
+			{
+				$parts = explode('|', $validatorDefinition);
+
+				return [
+					'name' => $parts[0],
+					'args' => array_slice($parts, 1),
+				];
+			}
+		};
+
+		$schema = new Schema(
+			validatorRegistry: $registry,
+			validatorDefinitionParser: $parser,
+		);
+		$schema->add('field', 'text', 'starts_with|foo');
+
+		$this->assertTrue($schema->validate(['field' => 'foobar']));
+		$this->assertFalse($schema->validate(['field' => 'barfoo']));
+		$this->assertSame('Must start with foo', $schema->errors()['map']['field'][0]);
 	}
 
 	public function testUnknownData(): void
