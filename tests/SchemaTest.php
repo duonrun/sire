@@ -8,9 +8,11 @@ use Duon\Sire\Contract\ValidatorDefinitionParser as ValidatorDefinitionParserCon
 use Duon\Sire\Schema;
 use Duon\Sire\TypeCaster;
 use Duon\Sire\TypeCasterRegistry;
+use Duon\Sire\ValidationResult;
 use Duon\Sire\Validator;
 use Duon\Sire\ValidatorRegistry;
 use Duon\Sire\Value;
+use Duon\Sire\Violation;
 use Override;
 use ValueError;
 
@@ -320,6 +322,57 @@ class SchemaTest extends TestCase
 		$this->assertTrue($schema->validate(['slug' => 'test-slug']));
 		$this->assertFalse($schema->validate(['slug' => 'Not A Slug']));
 		$this->assertSame('Invalid slug', $schema->errors()['map']['slug'][0]);
+	}
+
+	public function testValidationResult(): void
+	{
+		$schema = new Schema();
+		$schema->add('email', 'text', 'required', 'email');
+
+		$this->assertFalse($schema->validate(['email' => 'invalid']));
+
+		$result = $schema->result();
+		$this->assertInstanceOf(ValidationResult::class, $result);
+		$this->assertFalse($result->isValid());
+		$this->assertSame('Invalid email address', $result->map()['email'][0]);
+
+		$violations = $result->violations();
+		$this->assertCount(1, $violations);
+		$this->assertInstanceOf(Violation::class, $violations[0]);
+		$this->assertSame('email', $violations[0]->field);
+		$this->assertSame('Invalid email address', $violations[0]->error);
+
+		$this->assertSame(
+			$schema->errors(),
+			$result->errors(),
+		);
+	}
+
+	public function testResultBeforeValidation(): void
+	{
+		$schema = new Schema();
+
+		$result = $schema->result();
+		$this->assertTrue($result->isValid());
+		$this->assertCount(0, $result->violations());
+		$this->assertSame([], $result->map());
+		$this->assertCount(0, $schema->violations());
+	}
+
+	public function testWrongErrorType(): void
+	{
+		$this->expectException(ValueError::class);
+		$this->expectExceptionMessage('Wrong error type');
+
+		$registry = new TypeCasterRegistry([
+			'text' => new TypeCaster(function (mixed $pristine, string $label): Value {
+				return new Value($pristine, $pristine, ['not', 'a', 'string']);
+			}),
+		]);
+
+		$schema = new Schema(typeCasterRegistry: $registry);
+		$schema->add('field', 'text');
+		$schema->validate(['field' => 'value']);
 	}
 
 	public function testUnknownData(): void
