@@ -9,7 +9,7 @@ use Override;
 /**
  * @psalm-api
  */
-final class ValidatorRegistry implements ValidatorRegistryInterface
+final class ValidatorRegistry implements Contract\ValidatorRegistry
 {
 	/**
 	 * @param array<string, Validator> $validators

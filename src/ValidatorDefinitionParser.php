@@ -9,7 +9,7 @@ use Override;
 /**
  * @psalm-api
  */
-final class ValidatorDefinitionParser implements ValidatorDefinitionParserInterface
+final class ValidatorDefinitionParser implements Contract\ValidatorDefinitionParser
 {
 	#[Override]
 	/** @return array{name: string, args: list<string>} */

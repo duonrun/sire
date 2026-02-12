@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Duon\Sire;
+namespace Duon\Sire\Contract;
 
 /**
  * @psalm-api
  */
-interface SchemaInterface
+interface Schema
 {
 	public function validate(array $data, int $level = 1): bool;
 

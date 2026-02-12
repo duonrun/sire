@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Duon\Sire;
+namespace Duon\Sire\Contract;
 
 /**
  * @psalm-api
  */
-interface ValidatorDefinitionParserInterface
+interface ValidatorDefinitionParser
 {
 	/** @return array{name: string, args: list<string>} */
 	public function parse(string $validatorDefinition): array;
