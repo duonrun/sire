@@ -13,8 +13,7 @@ final class DefaultValidators
 			'required' => new Validator(
 				'required',
 				'Required',
-				/** @psalm-suppress UnusedClosureParam */
-				function (Value $value, string ...$args) {
+				function (Value $value, string ...$_args) {
 					$val = $value->value;
 
 					if (is_null($val)) {

@@ -9,8 +9,7 @@ namespace Duon\Sire;
  */
 final class Rule
 {
-	/** @psalm-suppress PropertyNotSetInConstructor */
-	public readonly string $label;
+	private ?string $label = null;
 
 	public function __construct(
 		public readonly string $field,
@@ -20,7 +19,6 @@ final class Rule
 
 	public function label(string $label): static
 	{
-		/** @psalm-suppress InaccessibleProperty */
 		$this->label = $label;
 
 		return $this;
@@ -28,8 +26,7 @@ final class Rule
 
 	public function name(): string
 	{
-		/** @psalm-suppress RedundantPropertyInitializationCheck */
-		return isset($this->label) ? $this->label : $this->field;
+		return $this->label ?? $this->field;
 	}
 
 	public function type(): string

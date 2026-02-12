@@ -11,8 +11,7 @@ final class DefaultTypeCasters
 	{
 		return [
 			'text' => new TypeCaster(
-				/** @psalm-suppress UnusedClosureParam */
-				function (mixed $pristine, string $label): Value {
+				function (mixed $pristine, string $_label): Value {
 					if (empty($pristine)) {
 						return new Value(null, $pristine);
 					}
