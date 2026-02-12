@@ -12,12 +12,14 @@ use ValueError;
  */
 class Schema implements Contract\Schema
 {
-	public array $errorList = [];  // A list of errors to be displayed in frontend
+	/** @var list<Violation> A list of validation violations */
+	public array $errorList = [];
 	protected array $validators = [];
 	protected int $level = 0;
 	/** @var array<string, Rule> */
 	protected array $rules = [];
-	protected array $errorMap = [];     // A dictonary of errorList with the fieldname as key
+	protected array $errorMap = [];
+	protected ?ValidationResult $result = null;
 	protected ?array $cachedValues = null;
 	protected ?array $validatedValues = null;
 	protected ?array $cachedPristine = null;
@@ -69,6 +71,7 @@ class Schema implements Contract\Schema
 		$this->level = $level;
 		$this->errorList = [];
 		$this->errorMap = [];
+		$this->result = null;
 		$this->cachedValues = null;
 		$this->cachedPristine = null;
 
@@ -100,26 +103,43 @@ class Schema implements Contract\Schema
 			$this->review();
 		}
 
-		return count($this->errorList) === 0;
+		$this->result = new ValidationResult(
+			$this->list,
+			$this->title,
+			$this->errorMap,
+			$this->errorList,
+		);
+
+		return $this->result->isValid();
+	}
+
+	#[Override]
+	public function result(): ValidationResult
+	{
+		if ($this->result !== null) {
+			return $this->result;
+		}
+
+		$this->result = new ValidationResult(
+			$this->list,
+			$this->title,
+			$this->errorMap,
+			$this->errorList,
+		);
+
+		return $this->result;
+	}
+
+	/** @return list<Violation> */
+	public function violations(): array
+	{
+		return $this->result()->violations();
 	}
 
 	#[Override]
 	public function errors(bool $grouped = false): array
 	{
-		$result = [
-			'isList' => $this->list,
-			'title' => $this->title,
-			'map' => $this->errorMap,
-			'grouped' => $grouped,
-		];
-
-		if ($grouped) {
-			$result['errors'] = $this->groupErrors($this->errorList);
-		} else {
-			$result['errors'] = array_values($this->errorList);
-		}
-
-		return $result;
+		return $this->result()->errors($grouped);
 	}
 
 	#[Override]
@@ -181,34 +201,37 @@ class Schema implements Contract\Schema
 
 	protected function addSubError(
 		string $field,
-		array|string|null $error,
+		array $error,
 		?int $listIndex,
 	): void {
-		foreach ($error['errors'] ?? [] as $err) {
+		foreach (($error['errors'] ?? []) as $err) {
+			assert($err instanceof Violation);
 			$this->errorList[] = $err;
 		}
 
+		$subErrorMap = is_array($error['map'] ?? null) ? $error['map'] : [];
+
 		if ($listIndex === null) {
-			$this->errorMap[$field] = $error['map'] ?? [];
+			$this->errorMap[$field] = $subErrorMap;
 		} else {
-			$this->errorMap[$listIndex][$field] = $error['map'] ?? [];
+			$this->errorMap[$listIndex][$field] = $subErrorMap;
 		}
 	}
 
 	protected function addError(
 		string $field,
 		string $label,
-		array|string|null $error,
+		string $error,
 		?int $listIndex = null,
 	): void {
-		$e = [
-			'error' => $error,
-			'title' => $this->title,
-			'level' => $this->level,
-			'item' => null,
-			'field' => $field,
-			'label' => $label,
-		];
+		$violation = new Violation(
+			$error,
+			$this->title,
+			$this->level,
+			$listIndex,
+			$field,
+			$label,
+		);
 
 		if ($listIndex === null) {
 			if (!isset($this->errorMap[$field])) {
@@ -217,8 +240,6 @@ class Schema implements Contract\Schema
 
 			$this->errorMap[$field][] = $error;
 		} else {
-			$e['item'] = $listIndex;
-
 			if (!isset($this->errorMap[$listIndex][$field])) {
 				$this->errorMap[$listIndex][$field] = [];
 			}
@@ -226,7 +247,7 @@ class Schema implements Contract\Schema
 			$this->errorMap[$listIndex][$field][] = $error;
 		}
 
-		$this->errorList[] = $e;
+		$this->errorList[] = $violation;
 	}
 
 	protected function validateField(
@@ -282,7 +303,16 @@ class Schema implements Contract\Schema
 			return new Value($schema->values(), $pristine);
 		}
 
-		return new Value($pristine, $pristine, $schema->errors());
+		$result = $schema->result();
+
+		return new Value(
+			$pristine,
+			$pristine,
+			[
+				'errors' => $result->violations(),
+				'map' => $result->map(),
+			],
+		);
 	}
 
 	protected function readFromData(array $data, ?int $listIndex = null): array
@@ -312,8 +342,13 @@ class Schema implements Contract\Schema
 
 				if ($valObj->error !== null) {
 					if ($rule->type() === 'schema') {
+						assert(is_array($valObj->error));
 						$this->addSubError($field, $valObj->error, $listIndex);
 					} else {
+						if (!is_string($valObj->error)) {
+							throw new ValueError('Wrong error type');
+						}
+
 						$this->addError(
 							$field,
 							$this->rules[$field]->name(),
@@ -390,73 +425,6 @@ class Schema implements Contract\Schema
 		//
 		// Implementations should call $this->addError('field_name', 'label', 'Error message');
 		// in case of error.
-	}
-
-	/** @param array<int, array> $data */
-	protected function groupBy(array $data, mixed $key): array
-	{
-		$result = [];
-
-		foreach ($data as $val) {
-			$result[$val[$key]][] = $val;
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Groups errors by schema and sub schema.
-	 *
-	 * Example:
-	 *    [
-	 *        [
-	 *            'title': 'Main Schema',
-	 *            'errors': [
-	 *                [
-	 *                   'error': 'First Error',
-	 *                   ...
-	 *                ], [
-	 *                   ...
-	 *                ]
-	 *            ]
-	 *        ], [
-	 *           'title': 'First Sub Schema',
-	 *           ....
-	 *        ]
-	 *    ]
-	 */
-	protected function groupErrors(array $errors): array
-	{
-		$sections = [];
-
-		foreach ($errors as $error) {
-			$item = ['title' => $error['title'], 'level' => (string) $error['level']];
-
-			if (in_array($item, $sections)) {
-				continue;
-			}
-
-			$sections[] = $item;
-		}
-
-		usort($sections, function ($a, $b) {
-			$aa = $a['level'] . $a['title'];
-			$bb = $b['level'] . $b['title'];
-
-			return $aa > $bb ? 1 : -1;
-		});
-
-		$groups = $this->groupBy(array_values($errors), 'title');
-		$result = [];
-
-		foreach ($sections as $section) {
-			$result[] = [
-				'title' => $section['title'],
-				'errors' => $groups[$section['title']],
-			];
-		}
-
-		return $result;
 	}
 
 	protected function getValues(array $values): array
