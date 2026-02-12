@@ -4,7 +4,33 @@ title: Introduction
 
 # Sire Validation Library
 
-Sire is a PHP 8.1 data validation library,
+Sire is a PHP validation library that lets you define schemas with a compact
+rule DSL, validate arbitrary input, and consume a typed validation result.
 
-!!! warning "Note"
-    This library is under active development, some of the listed features are still experimental and subject to change. Large parts of the documentation are missing.
+> **Note:** This is a preview feature currently under active development.
+
+## Documentation sections
+
+Start with the section that matches your current task. Each section focuses on
+one workflow so you can move from install to production usage quickly.
+
+- [Installation](installation.md)
+- [Usage](usage.md)
+- [Development](development.md)
+
+## Core concepts
+
+Sire uses a schema object that defines fields, field types, and validators. A
+validation run returns a `ValidationResult` object with typed violations,
+structured error output, and both cast and pristine values.
+
+- Define fields with `Schema::add()`.
+- Describe constraints with the string DSL, for example `required` or
+  `min:10`.
+- Call `Schema::validate()` to get a `ValidationResult`.
+- Read `isValid()`, `violations()`, `errors()`, `values()`, and
+  `pristineValues()` on the result.
+
+## Next steps
+
+If you are new to the library, continue with the installation guide first.

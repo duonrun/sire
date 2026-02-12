@@ -6,15 +6,24 @@
 [![Psalm level](https://shepherd.dev/github/duonrun/sire/level.svg?)](https://duonrun.dev/sire)
 [![Quality Score](https://img.shields.io/scrutinizer/g/duonrun/sire.svg)](https://scrutinizer-ci.com/g/duonrun/sire)
 
-A PHP validation library
+A PHP validation library with a schema-first API and a compact validator DSL.
 
-> **Note**: This framework is under active development, some of the listed features are still experimental and subject to change. Large parts of the documentation are missing.
+> **Note:** This is a preview feature currently under active development.
 
 ## Installation
 
 ```bash
 composer require duon/sire
 ```
+
+## Documentation
+
+Use the docs in `docs/` for complete setup and usage guidance.
+
+- [Introduction](docs/index.md)
+- [Installation](docs/installation.md)
+- [Usage](docs/usage.md)
+- [Development](docs/development.md)
 
 ## License
 
