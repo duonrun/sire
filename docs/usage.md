@@ -4,24 +4,24 @@ title: Usage
 
 # Usage
 
-This guide covers the day-to-day Sire API, including schema creation,
-validation execution, result handling, nested schemas, and extension points.
+This guide covers the day-to-day Sire API, including shape creation,
+validation execution, result handling, nested shapes, and extension points.
 
-## Validate data with a schema
+## Validate data with a shape
 
-Create a `Schema`, define rules with `add()`, and call `validate()` to get a
+Create a `Shape`, define rules with `add()`, and call `validate()` to get a
 `ValidationResult` object.
 
 ```php
 <?php
 
-use Duon\Sire\Schema;
+use Duon\Sire\Shape;
 
-$schema = new Schema();
-$schema->add('email', 'text', 'required', 'email')->label('Email address');
-$schema->add('age', 'int', 'min:18');
+$shape = new Shape();
+$shape->add('email', 'text', 'required', 'email')->label('Email address');
+$shape->add('age', 'int', 'min:18');
 
-$result = $schema->validate([
+$result = $shape->validate([
     'email' => 'test@example.com',
     'age' => '21',
 ]);
@@ -70,7 +70,7 @@ your source of truth in application code.
 - `isValid()` returns `true` when no violations exist.
 - `violations()` returns typed `Violation` objects.
 - `errors()` returns a structured array output.
-- `errors(grouped: true)` groups errors by schema section.
+- `errors(grouped: true)` groups errors by shape section.
 - `map()` returns a field-to-messages map.
 - `values()` returns cast values.
 - `pristineValues()` returns original values before casting.
@@ -80,30 +80,30 @@ return them directly from JSON APIs.
 
 ## Validate nested objects and lists
 
-You can use another schema as a field type to validate nested structures.
-Create a list schema by passing `true` to the constructor.
+You can use another shape as a field type to validate nested structures.
+Create a list shape by passing `true` to the constructor.
 
 ```php
 <?php
 
-use Duon\Sire\Schema;
+use Duon\Sire\Shape;
 
-$address = new Schema();
+$address = new Shape();
 $address->add('street', 'text', 'required');
 $address->add('zip', 'text', 'required', 'minlen:5');
 
-$user = new Schema();
+$user = new Shape();
 $user->add('name', 'text', 'required');
 $user->add('address', $address);
 
-$users = new Schema(true);
+$users = new Shape(true);
 $users->add('name', 'text', 'required');
 $users->add('address', $address);
 ```
 
 ## Extend validators and type casters
 
-You can provide custom registries when you construct a schema. This is useful
+You can provide custom registries when you construct a shape. This is useful
 for project-specific rules and casting behavior.
 
 - Use `ValidatorRegistry::withDefaults()->with(...)` to add validators.

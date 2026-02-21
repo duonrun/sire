@@ -6,7 +6,7 @@
 [![Psalm level](https://shepherd.dev/github/duonrun/sire/level.svg?)](https://duonrun.dev/sire)
 [![Psalm coverage](https://shepherd.dev/github/duonrun/sire/coverage.svg?)](https://shepherd.dev/github/duonrun/sire)
 
-A PHP validation library with a schema-first API and a compact validator DSL.
+A PHP validation library with a shape-first API and a compact validator DSL.
 
 > **Note:** This is a preview feature currently under active development.
 
