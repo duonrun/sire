@@ -13,7 +13,7 @@ final class Rule
 
 	public function __construct(
 		public readonly string $field,
-		public readonly string|Contract\Schema $type,
+		public readonly string|Contract\Shape $type,
 		public readonly array $validators,
 	) {}
 
@@ -31,6 +31,6 @@ final class Rule
 
 	public function type(): string
 	{
-		return is_string($this->type) ? $this->type : 'schema';
+		return is_string($this->type) ? $this->type : 'shape';
 	}
 }
