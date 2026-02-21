@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Duon\Sire\Tests;
 
-use Duon\Sire\Schema;
+use Duon\Sire\Shape;
 
-class SubSchema extends Schema
+class SubShape extends Shape
 {
 	public function rules(): void
 	{
