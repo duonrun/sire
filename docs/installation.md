@@ -27,7 +27,7 @@ Use Composer to add Sire as a project dependency.
 
 2. Ensure your Composer autoloader is loaded in your application bootstrap.
 
-3. Create a schema and run a first validation call.
+3. Create a shape and run a first validation call.
 
 ## Install for local development
 
@@ -50,4 +50,4 @@ including development tools.
 
 ## Next steps
 
-Continue with the [usage guide](usage.md) to build your first real schema.
+Continue with the [usage guide](usage.md) to build your first real shape.
