@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Duon\Sire\Tests;
 
-use Duon\Sire\Schema;
+use Duon\Sire\Shape;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
@@ -66,9 +66,9 @@ class TestCase extends BaseTestCase
 		];
 	}
 
-	public function getListSchema(): Schema
+	public function getListShape(): Shape
 	{
-		return new class (title: 'List Root', list: true) extends Schema {
+		return new class (title: 'List Root', list: true) extends Shape {
 			protected function rules(): void
 			{
 				$this->add('int', 'int', 'required');
@@ -76,12 +76,12 @@ class TestCase extends BaseTestCase
 				$this->add('email', 'text', 'email', 'minlen:10');
 				$this->add(
 					'single_schema',
-					new SubSchema(title: 'Single Sub'),
+					new SubShape(title: 'Single Sub'),
 					'required',
 				)->label('Single Schema');
 				$this->add(
 					'list_schema',
-					new SubSchema(title: 'List Sub', list: true),
+					new SubShape(title: 'List Sub', list: true),
 				);
 			}
 		};
