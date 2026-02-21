@@ -10,7 +10,7 @@ use ValueError;
 /**
  * @psalm-api
  */
-class Schema implements Contract\Schema
+class Shape implements Contract\Shape
 {
 	/** @var list<Violation> A list of validation violations */
 	public array $errorList = [];
@@ -45,12 +45,12 @@ class Schema implements Contract\Schema
 
 	public function add(
 		string $field,
-		string|Contract\Schema $type,
+		string|Contract\Shape $type,
 		string ...$validators,
 	): Rule {
 		if (!$field) {
 			throw new ValueError(
-				'Schema definition error: field must not be empty',
+				'Shape definition error: field must not be empty',
 			);
 		}
 
@@ -108,7 +108,7 @@ class Schema implements Contract\Schema
 	/**
 	 * This method is called before validation starts.
 	 *
-	 * It can be overwritten to add rules in a reusable schema
+	 * It can be overwritten to add rules in a reusable shape
 	 */
 	protected function rules(): void
 	{
@@ -214,9 +214,9 @@ class Schema implements Contract\Schema
 		}
 	}
 
-	protected function toSubValues(mixed $pristine, Contract\Schema $schema): Value
+	protected function toSubValues(mixed $pristine, Contract\Shape $shape): Value
 	{
-		$result = $schema->validate($pristine, $this->level + 1);
+		$result = $shape->validate($pristine, $this->level + 1);
 
 		if ($result->isValid()) {
 			return new Value($result->values(), $pristine);
@@ -273,22 +273,22 @@ class Schema implements Contract\Schema
 				$label = $rule->name();
 				$type = $rule->type();
 
-				if ($type === 'schema') {
-					$schema = $rule->type;
-					assert($schema instanceof Contract\Schema);
-					$valObj = $this->toSubValues($value, $schema);
+				if ($type === 'shape') {
+					$shape = $rule->type;
+					assert($shape instanceof Contract\Shape);
+					$valObj = $this->toSubValues($value, $shape);
 				} else {
 					$caster = $this->typeCasters[$type] ?? null;
 
 					if ($caster === null) {
-						throw new ValueError('Wrong schema type');
+						throw new ValueError('Wrong shape type');
 					}
 
 					$valObj = $caster->cast($value, $label);
 				}
 
 				if ($valObj->error !== null) {
-					if ($rule->type() === 'schema') {
+					if ($rule->type() === 'shape') {
 						assert(is_array($valObj->error));
 						$this->addSubError($field, $valObj->error, $listIndex);
 					} else {
