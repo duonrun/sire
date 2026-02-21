@@ -15,10 +15,10 @@ class TestCase extends BaseTestCase
 			[
 				'int' => 13,
 				'email' => 'chuck@example.com',
-				'single_schema' => [
+				'single_shape' => [
 					'inner_email' => 'test@example.com',
 				],
-				'list_schema' => [[
+				'list_shape' => [[
 					'inner_int' => 23,
 					'inner_email' => 'test@example.com',
 				]],
@@ -26,7 +26,7 @@ class TestCase extends BaseTestCase
 			[
 				'int' => 73,
 				'email' => 'chuck',
-				'list_schema' => [
+				'list_shape' => [
 					[
 						'inner_int' => 43,
 						'inner_email' => 'test@example.com',
@@ -36,11 +36,11 @@ class TestCase extends BaseTestCase
 			[ // the valid record
 				'int' => 23,
 				'text' => 'Text 23',
-				'single_schema' => [
+				'single_shape' => [
 					'inner_int' => 97,
 					'inner_email' => 'test@example.com',
 				],
-				'list_schema' => [[
+				'list_shape' => [[
 					'inner_int' => 83,
 					'inner_email' => 'test@example.com',
 				]],
@@ -48,11 +48,11 @@ class TestCase extends BaseTestCase
 			[
 				'int' => 17,
 				'text' => 'Text 2',
-				'single_schema' => [
+				'single_shape' => [
 					'inner_int' => 23,
 					'inner_email' => 'test INVALID example.com',
 				],
-				'list_schema' => [[
+				'list_shape' => [[
 					'inner_int' => 'invalid',
 					'inner_email' => 'example@example.com',
 				], [
@@ -75,15 +75,16 @@ class TestCase extends BaseTestCase
 				$this->add('text', 'text', 'required');
 				$this->add('email', 'text', 'email', 'minlen:10');
 				$this->add(
-					'single_schema',
+					'single_shape',
 					new SubShape(title: 'Single Sub'),
 					'required',
-				)->label('Single Schema');
+				)->label('Single Shape');
 				$this->add(
-					'list_schema',
+					'list_shape',
 					new SubShape(title: 'List Sub', list: true),
 				);
 			}
 		};
 	}
 }
+
