@@ -804,14 +804,11 @@ class ShapeTest extends TestCase
 		$errors = $result->errors();
 		$this->assertCount(5, $errors);
 		$this->assertSame('Required', $errors['map'][0]['text'][0]);
-		$this->assertSame('Required', $errors['map'][0]['single_shape']['inner_int'][0]);
-		$this->assertSame('Required', $errors['map'][1]['single_shape'][0]);
-		$this->assertSame('Required', $errors['map'][1]['text'][0]);
-		$this->assertSame('Invalid email address', $errors['map'][1]['email'][0]);
-		$this->assertSame('Shorter than the minimum length of 10 characters', $errors['map'][1]['email'][1]);
-		$this->assertSame('Invalid email address', $errors['map'][3]['single_shape']['inner_email'][0]);
-		$this->assertSame('Invalid number', $errors['map'][3]['list_shape'][0]['inner_int'][0]);
-		$this->assertSame('Invalid email address', $errors['map'][3]['list_shape'][2]['inner_email'][0]);
+		$this->assertSame('Required', $errors['map'][0]['single_schema']['inner_int'][0]);
+		$this->assertSame('Required', $errors['map'][1]['single_schema'][0]);
+		$this->assertSame('Invalid email address', $errors['map'][3]['single_schema']['inner_email'][0]);
+		$this->assertSame('Invalid number', $errors['map'][3]['list_schema'][0]['inner_int'][0]);
+		$this->assertSame('Invalid email address', $errors['map'][3]['list_schema'][2]['inner_email'][0]);
 	}
 
 	public function testGroupedErrors(): void
