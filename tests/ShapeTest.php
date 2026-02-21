@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Duon\Sire\Tests;
 
 use Duon\Sire\Contract\ValidatorDefinitionParser as ValidatorDefinitionParserContract;
-use Duon\Sire\Schema;
+use Duon\Sire\Shape;
 use Duon\Sire\TypeCaster;
 use Duon\Sire\TypeCasterRegistry;
 use Duon\Sire\ValidationResult;
@@ -16,7 +16,7 @@ use Duon\Sire\Violation;
 use Override;
 use ValueError;
 
-class SchemaTest extends TestCase
+class ShapeTest extends TestCase
 {
 	public function testTypeInt(): void
 	{
@@ -27,13 +27,13 @@ class SchemaTest extends TestCase
 			'invalid_int_2' => '23.23',
 		];
 
-		$schema = new Schema();
-		$schema->add('invalid_int_1', 'int')->label('Int 1');
-		$schema->add('invalid_int_2', 'int');
-		$schema->add('valid_int_1', 'int')->label('Int');
-		$schema->add('valid_int_2', 'int')->label('Int');
+		$shape = new Shape();
+		$shape->add('invalid_int_1', 'int')->label('Int 1');
+		$shape->add('invalid_int_2', 'int');
+		$shape->add('valid_int_1', 'int')->label('Int');
+		$shape->add('valid_int_2', 'int')->label('Int');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertSame('Invalid number', $errors['errors'][0]['error']);
@@ -67,14 +67,14 @@ class SchemaTest extends TestCase
 			'invalid_float' => '23.23invalid',
 		];
 
-		$schema = new Schema();
-		$schema->add('invalid_float', 'float')->label('Float');
-		$schema->add('valid_float_1', 'float');
-		$schema->add('valid_float_2', 'float');
-		$schema->add('valid_float_3', 'float');
-		$schema->add('valid_float_4', 'float');
+		$shape = new Shape();
+		$shape->add('invalid_float', 'float')->label('Float');
+		$shape->add('valid_float_1', 'float');
+		$shape->add('valid_float_2', 'float');
+		$shape->add('valid_float_3', 'float');
+		$shape->add('valid_float_4', 'float');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertSame('Invalid number', $errors['errors'][0]['error']);
@@ -99,19 +99,19 @@ class SchemaTest extends TestCase
 			'invalid_bool_2' => 13,
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_bool_1', 'bool');
-		$schema->add('valid_bool_2', 'bool');
-		$schema->add('valid_bool_3', 'bool');
-		$schema->add('valid_bool_4', 'bool');
-		$schema->add('valid_bool_5', 'bool');
-		$schema->add('valid_bool_6', 'bool');
-		$schema->add('valid_bool_7', 'bool');
-		$schema->add('valid_bool_8', 'bool');
-		$schema->add('invalid_bool_1', 'bool')->label('Bool 1');
-		$schema->add('invalid_bool_2', 'bool');
+		$shape = new Shape();
+		$shape->add('valid_bool_1', 'bool');
+		$shape->add('valid_bool_2', 'bool');
+		$shape->add('valid_bool_3', 'bool');
+		$shape->add('valid_bool_4', 'bool');
+		$shape->add('valid_bool_5', 'bool');
+		$shape->add('valid_bool_6', 'bool');
+		$shape->add('valid_bool_7', 'bool');
+		$shape->add('valid_bool_8', 'bool');
+		$shape->add('invalid_bool_1', 'bool')->label('Bool 1');
+		$shape->add('invalid_bool_2', 'bool');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertSame('Invalid boolean', $errors['errors'][0]['error']);
@@ -146,14 +146,14 @@ class SchemaTest extends TestCase
 			'valid_text_4' => '<a href="/test">Test</a>',
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_text_1', 'text')->label('Text');
-		$schema->add('valid_text_2', 'text')->label('Text');
-		$schema->add('valid_text_3', 'text')->label('Text');
-		$schema->add('valid_text_4', 'text');
-		$schema->add('valid_text_5', 'text');
+		$shape = new Shape();
+		$shape->add('valid_text_1', 'text')->label('Text');
+		$shape->add('valid_text_2', 'text')->label('Text');
+		$shape->add('valid_text_3', 'text')->label('Text');
+		$shape->add('valid_text_4', 'text');
+		$shape->add('valid_text_5', 'text');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertTrue($result->isValid());
 		$this->assertCount(0, $result->errors()['errors']);
 
@@ -176,10 +176,10 @@ class SchemaTest extends TestCase
 			'valid_text' => '',
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_text', 'text', 'maxlen');
+		$shape = new Shape();
+		$shape->add('valid_text', 'text', 'maxlen');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertTrue($result->isValid());
 	}
 
@@ -192,13 +192,13 @@ class SchemaTest extends TestCase
 			'invalid_list_2' => 13,
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_list_1', 'list');
-		$schema->add('valid_list_2', 'list');
-		$schema->add('invalid_list_1', 'list')->label('List 1');
-		$schema->add('invalid_list_2', 'list');
+		$shape = new Shape();
+		$shape->add('valid_list_1', 'list');
+		$shape->add('valid_list_2', 'list');
+		$shape->add('invalid_list_1', 'list')->label('List 1');
+		$shape->add('invalid_list_2', 'list');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertSame('Invalid list', $errors['errors'][0]['error']);
@@ -221,11 +221,11 @@ class SchemaTest extends TestCase
 	public function testWrongType(): void
 	{
 		$this->expectException(ValueError::class);
-		$this->expectExceptionMessage('Wrong schema type');
+		$this->expectExceptionMessage('Wrong shape type');
 
-		$schema = new Schema();
-		$schema->add('invalid_field', 'Invalid', 'invalid');
-		$schema->validate(['invalid_field' => false]);
+		$shape = new Shape();
+		$shape->add('invalid_field', 'Invalid', 'invalid');
+		$shape->validate(['invalid_field' => false]);
 	}
 
 	public function testUnknownValidator(): void
@@ -233,9 +233,9 @@ class SchemaTest extends TestCase
 		$this->expectException(ValueError::class);
 		$this->expectExceptionMessage('Unknown validator');
 
-		$schema = new Schema();
-		$schema->add('field', 'text', 'unknown');
-		$schema->validate(['field' => 'value']);
+		$shape = new Shape();
+		$shape->add('field', 'text', 'unknown');
+		$shape->validate(['field' => 'value']);
 	}
 
 	public function testCustomValidatorRegistry(): void
@@ -254,15 +254,15 @@ class SchemaTest extends TestCase
 			),
 		);
 
-		$schema = new Schema(validatorRegistry: $registry);
-		$schema->add('field', 'text', 'required', 'starts_with:foo');
+		$shape = new Shape(validatorRegistry: $registry);
+		$shape->add('field', 'text', 'required', 'starts_with:foo');
 
-		$result = $schema->validate(['field' => 'foobar']);
+		$result = $shape->validate(['field' => 'foobar']);
 		$this->assertTrue($result->isValid());
-		$result = $schema->validate(['field' => 'barfoo']);
+		$result = $shape->validate(['field' => 'barfoo']);
 		$this->assertFalse($result->isValid());
 		$this->assertSame('Must start with foo', $result->errors()['map']['field'][0]);
-		$result = $schema->validate(['field' => '']);
+		$result = $shape->validate(['field' => '']);
 		$this->assertFalse($result->isValid());
 		$this->assertSame('Required', $result->errors()['map']['field'][0]);
 	}
@@ -296,15 +296,15 @@ class SchemaTest extends TestCase
 			}
 		};
 
-		$schema = new Schema(
+		$shape = new Shape(
 			validatorRegistry: $registry,
 			validatorDefinitionParser: $parser,
 		);
-		$schema->add('field', 'text', 'starts_with|foo');
+		$shape->add('field', 'text', 'starts_with|foo');
 
-		$result = $schema->validate(['field' => 'foobar']);
+		$result = $shape->validate(['field' => 'foobar']);
 		$this->assertTrue($result->isValid());
-		$result = $schema->validate(['field' => 'barfoo']);
+		$result = $shape->validate(['field' => 'barfoo']);
 		$this->assertFalse($result->isValid());
 		$this->assertSame('Must start with foo', $result->errors()['map']['field'][0]);
 	}
@@ -327,22 +327,22 @@ class SchemaTest extends TestCase
 			}),
 		);
 
-		$schema = new Schema(typeCasterRegistry: $registry);
-		$schema->add('slug', 'slug', 'required');
+		$shape = new Shape(typeCasterRegistry: $registry);
+		$shape->add('slug', 'slug', 'required');
 
-		$result = $schema->validate(['slug' => 'test-slug']);
+		$result = $shape->validate(['slug' => 'test-slug']);
 		$this->assertTrue($result->isValid());
-		$result = $schema->validate(['slug' => 'Not A Slug']);
+		$result = $shape->validate(['slug' => 'Not A Slug']);
 		$this->assertFalse($result->isValid());
 		$this->assertSame('Invalid slug', $result->errors()['map']['slug'][0]);
 	}
 
 	public function testValidationResult(): void
 	{
-		$schema = new Schema();
-		$schema->add('email', 'text', 'required', 'email');
+		$shape = new Shape();
+		$shape->add('email', 'text', 'required', 'email');
 
-		$result = $schema->validate(['email' => 'invalid']);
+		$result = $shape->validate(['email' => 'invalid']);
 		$this->assertInstanceOf(ValidationResult::class, $result);
 		$this->assertFalse($result->isValid());
 		$this->assertSame('Invalid email address', $result->map()['email'][0]);
@@ -359,9 +359,9 @@ class SchemaTest extends TestCase
 
 	public function testResultBeforeValidation(): void
 	{
-		$schema = new Schema();
+		$shape = new Shape();
 
-		$result = $schema->validate([]);
+		$result = $shape->validate([]);
 		$this->assertTrue($result->isValid());
 		$this->assertCount(0, $result->violations());
 		$this->assertSame([], $result->map());
@@ -380,9 +380,9 @@ class SchemaTest extends TestCase
 			}),
 		]);
 
-		$schema = new Schema(typeCasterRegistry: $registry);
-		$schema->add('field', 'text');
-		$schema->validate(['field' => 'value']);
+		$shape = new Shape(typeCasterRegistry: $registry);
+		$shape->add('field', 'text');
+		$shape->validate(['field' => 'value']);
 	}
 
 	public function testUnknownData(): void
@@ -394,11 +394,11 @@ class SchemaTest extends TestCase
 			'unknown_4' => '23',
 		];
 
-		$schema = new Schema();
-		$schema->add('unknown_1', 'text');
-		$schema->add('unknown_2', 'int');
+		$shape = new Shape();
+		$shape->add('unknown_1', 'text');
+		$shape->add('unknown_2', 'int');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertTrue($result->isValid());
 		$this->assertCount(0, $result->errors()['errors']);
 
@@ -412,11 +412,11 @@ class SchemaTest extends TestCase
 		$this->assertSame('13', $pristine['unknown_2']);
 		$this->assertFalse(isset($pristine['unknown_3']));
 
-		$schema = new Schema(false, true);
-		$schema->add('unknown_1', 'text');
-		$schema->add('unknown_2', 'int');
+		$shape = new Shape(false, true);
+		$shape->add('unknown_1', 'text');
+		$shape->add('unknown_2', 'int');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertTrue($result->isValid());
 		$this->assertCount(0, $result->errors()['errors']);
 
@@ -445,17 +445,17 @@ class SchemaTest extends TestCase
 			'invalid_4' => '',
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_1', 'text', 'required');
-		$schema->add('valid_2', 'bool', 'required');
-		$schema->add('valid_3', 'int', 'required');
-		$schema->add('valid_4', 'float', 'required');
-		$schema->add('valid_5', 'list', 'required');
-		$schema->add('invalid_1', 'text', 'required');
-		$schema->add('invalid_2', 'float', 'required')->label('Required 2');
-		$schema->add('invalid_3', 'list', 'required');
+		$shape = new Shape();
+		$shape->add('valid_1', 'text', 'required');
+		$shape->add('valid_2', 'bool', 'required');
+		$shape->add('valid_3', 'int', 'required');
+		$shape->add('valid_4', 'float', 'required');
+		$shape->add('valid_5', 'list', 'required');
+		$shape->add('invalid_1', 'text', 'required');
+		$shape->add('invalid_2', 'float', 'required')->label('Required 2');
+		$shape->add('invalid_3', 'list', 'required');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(3, $errors['errors']);
@@ -471,11 +471,11 @@ class SchemaTest extends TestCase
 			'invalid_email' => 'invalid@email',
 		];
 
-		$schema = new Schema();
-		$schema->add('invalid_email', 'text', 'email')->label('Email');
-		$schema->add('valid_email', 'text', 'email');
+		$shape = new Shape();
+		$shape->add('invalid_email', 'text', 'email')->label('Email');
+		$shape->add('valid_email', 'text', 'email');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
@@ -489,11 +489,11 @@ class SchemaTest extends TestCase
 			'invalid_email' => 'invalid@test.tld',
 		];
 
-		$schema = new Schema();
-		$schema->add('invalid_email', 'text', 'email:checkdns');
-		$schema->add('valid_email', 'text', 'email:checkdns');
+		$shape = new Shape();
+		$shape->add('invalid_email', 'text', 'email:checkdns');
+		$shape->add('valid_email', 'text', 'email:checkdns');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
@@ -511,15 +511,15 @@ class SchemaTest extends TestCase
 			'invalid_2' => 7.13,
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_1', 'int', 'min:10');
-		$schema->add('valid_2', 'float', 'min:10');
-		$schema->add('valid_3', 'int', 'min:10');
-		$schema->add('valid_4', 'float', 'min:10');
-		$schema->add('invalid_1', 'int', 'min:10')->label('Min');
-		$schema->add('invalid_2', 'float', 'min:10');
+		$shape = new Shape();
+		$shape->add('valid_1', 'int', 'min:10');
+		$shape->add('valid_2', 'float', 'min:10');
+		$shape->add('valid_3', 'int', 'min:10');
+		$shape->add('valid_4', 'float', 'min:10');
+		$shape->add('invalid_1', 'int', 'min:10')->label('Min');
+		$shape->add('invalid_2', 'float', 'min:10');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
@@ -538,15 +538,15 @@ class SchemaTest extends TestCase
 			'invalid_2' => 23.13,
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_1', 'int', 'max:13');
-		$schema->add('valid_2', 'float', 'max:13');
-		$schema->add('valid_3', 'int', 'max:13');
-		$schema->add('valid_4', 'float', 'max:13');
-		$schema->add('invalid_1', 'int', 'max:13');
-		$schema->add('invalid_2', 'float', 'max:13')->label('Max');
+		$shape = new Shape();
+		$shape->add('valid_1', 'int', 'max:13');
+		$shape->add('valid_2', 'float', 'max:13');
+		$shape->add('valid_3', 'int', 'max:13');
+		$shape->add('valid_4', 'float', 'max:13');
+		$shape->add('invalid_1', 'int', 'max:13');
+		$shape->add('invalid_2', 'float', 'max:13')->label('Max');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
@@ -562,12 +562,12 @@ class SchemaTest extends TestCase
 			'invalid' => 'abcdefghi',
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_1', 'text', 'minlen:10');
-		$schema->add('valid_2', 'text', 'minlen:10');
-		$schema->add('invalid', 'text', 'minlen:10');
+		$shape = new Shape();
+		$shape->add('valid_1', 'text', 'minlen:10');
+		$shape->add('valid_2', 'text', 'minlen:10');
+		$shape->add('invalid', 'text', 'minlen:10');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
@@ -585,12 +585,12 @@ class SchemaTest extends TestCase
 			'invalid' => 'abcdefghiklm',
 		];
 
-		$schema = new Schema();
-		$schema->add('valid_1', 'text', 'maxlen:10');
-		$schema->add('valid_2', 'text', 'maxlen:10');
-		$schema->add('invalid', 'text', 'maxlen:10');
+		$shape = new Shape();
+		$shape->add('valid_1', 'text', 'maxlen:10');
+		$shape->add('valid_2', 'text', 'maxlen:10');
+		$shape->add('invalid', 'text', 'maxlen:10');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
@@ -609,13 +609,13 @@ class SchemaTest extends TestCase
 			'invalid_colon' => 'abcdef:ghi:klm',
 		];
 
-		$schema = new Schema();
-		$schema->add('valid', 'text', 'regex:/^abcdefghi$/');
-		$schema->add('invalid', 'text', 'regex:/^abcdefghi$/');
-		$schema->add('valid_colon', 'text', 'regex:/^[a-z:]+:$/');
-		$schema->add('invalid_colon', 'text', 'regex:/^[a-z:]+:$/');
+		$shape = new Shape();
+		$shape->add('valid', 'text', 'regex:/^abcdefghi$/');
+		$shape->add('invalid', 'text', 'regex:/^abcdefghi$/');
+		$shape->add('valid_colon', 'text', 'regex:/^[a-z:]+:$/');
+		$shape->add('invalid_colon', 'text', 'regex:/^[a-z:]+:$/');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
@@ -630,12 +630,12 @@ class SchemaTest extends TestCase
 			'invalid' => 'invalid',
 		];
 
-		$schema = new Schema();
-		$schema->add('valid1', 'text', 'in:valid,alsovalid');
-		$schema->add('valid2', 'text', 'in:valid,alsovalid');
-		$schema->add('invalid', 'text', 'in:valid,alsovalid');
+		$shape = new Shape();
+		$shape->add('valid1', 'text', 'in:valid,alsovalid');
+		$shape->add('valid2', 'text', 'in:valid,alsovalid');
+		$shape->add('invalid', 'text', 'in:valid,alsovalid');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
@@ -651,13 +651,13 @@ class SchemaTest extends TestCase
 			'invalid' => 'Nope',
 		];
 
-		$schema = new Schema();
-		$schema->add('quoted_comma', 'text', 'in:"ACME, Inc",Globex');
-		$schema->add('escaped_comma', 'text', 'in:ACME\\, Inc,Globex');
-		$schema->add('quoted_colon', 'text', 'in:"http://","https://"');
-		$schema->add('invalid', 'text', 'in:"ACME, Inc",Globex');
+		$shape = new Shape();
+		$shape->add('quoted_comma', 'text', 'in:"ACME, Inc",Globex');
+		$shape->add('escaped_comma', 'text', 'in:ACME\\, Inc,Globex');
+		$shape->add('quoted_colon', 'text', 'in:"http://","https://"');
+		$shape->add('invalid', 'text', 'in:"ACME, Inc",Globex');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
@@ -682,12 +682,12 @@ class SchemaTest extends TestCase
 			),
 		]);
 
-		$schema = new Schema(validatorRegistry: $registry);
-		$schema->add('escaped', 'text', 'starts_with:http\\://');
-		$schema->add('quoted', 'text', 'starts_with:"http://"');
-		$schema->add('invalid', 'text', 'starts_with:http\\://');
+		$shape = new Shape(validatorRegistry: $registry);
+		$shape->add('escaped', 'text', 'starts_with:http\\://');
+		$shape->add('quoted', 'text', 'starts_with:"http://"');
+		$shape->add('invalid', 'text', 'starts_with:http\\://');
 
-		$result = $schema->validate([
+		$result = $shape->validate([
 			'escaped' => 'http://duon.de',
 			'quoted' => 'http://duon.org',
 			'invalid' => 'https://duon.de',
@@ -699,66 +699,66 @@ class SchemaTest extends TestCase
 		$this->assertSame('Must start with http://', $errors['map']['invalid'][0]);
 	}
 
-	public function testSubSchema(): void
+	public function testSubShape(): void
 	{
 		$testData = [
 			'int' => 13,
 			'text' => 'Text',
-			'schema' => [
+			'shape' => [
 				'inner_int' => 23,
 				'inner_email' => 'test@example.com',
 			],
 		];
 
-		$schema = new Schema();
-		$schema->add('int', 'int', 'required');
-		$schema->add('text', 'text', 'required');
-		$schema->add('schema', new SubSchema())->label('Schema');
+		$shape = new Shape();
+		$shape->add('int', 'int', 'required');
+		$shape->add('text', 'text', 'required');
+		$shape->add('shape', new SubShape())->label('Shape');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertTrue($result->isValid());
 	}
 
-	public function testInvalidDataInSubSchema(): void
+	public function testInvalidDataInSubShape(): void
 	{
 		$testData = [
 			'int' => 13,
-			'schema' => [
+			'shape' => [
 				'inner_int' => 23,
 				'inner_email' => 'test INVALID example.com',
 			],
 		];
 
-		$schema = new Schema();
-		$schema->add('int', 'int', 'required');
-		$schema->add('text', 'text', 'required');
-		$schema->add('schema', new SubSchema());
+		$shape = new Shape();
+		$shape->add('int', 'int', 'required');
+		$shape->add('text', 'text', 'required');
+		$shape->add('shape', new SubShape());
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(2, $errors['errors']);
 		$this->assertSame('Required', $errors['map']['text'][0]);
-		$this->assertSame('Invalid email address', $errors['map']['schema']['inner_email'][0]);
+		$this->assertSame('Invalid email address', $errors['map']['shape']['inner_email'][0]);
 	}
 
-	public function testListSchema(): void
+	public function testListShape(): void
 	{
 		$testData = [[
 			'int' => 13,
 			'text' => 'Text 1',
-			'single_schema' => [
+			'single_shape' => [
 				'inner_int' => 23,
 				'inner_email' => 'test@example.com',
 			],
 		], [
 			'int' => 17,
 			'text' => 'Text 2',
-			'single_schema' => [
+			'single_shape' => [
 				'inner_int' => '31',
 				'inner_email' => 'example@example.com',
 			],
-			'list_schema' => [[
+			'list_shape' => [[
 				'inner_int' => '43',
 				'inner_email' => 'example@example.com',
 			], [
@@ -767,59 +767,59 @@ class SchemaTest extends TestCase
 			]],
 		]];
 
-		$schema = new Schema(true);
-		$schema->add('int', 'int', 'required');
-		$schema->add('text', 'text', 'required');
-		$schema->add('single_schema', new SubSchema());
-		$schema->add('list_schema', new SubSchema(true));
+		$shape = new Shape(true);
+		$shape->add('int', 'int', 'required');
+		$shape->add('text', 'text', 'required');
+		$shape->add('single_shape', new SubShape());
+		$shape->add('list_shape', new SubShape(true));
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertTrue($result->isValid());
 		$values = $result->values();
 		$this->assertSame(13, $values[0]['int']);
-		$this->assertSame(23, $values[0]['single_schema']['inner_int']);
-		$this->assertNull($values[0]['list_schema']);
+		$this->assertSame(23, $values[0]['single_shape']['inner_int']);
+		$this->assertNull($values[0]['list_shape']);
 		$this->assertSame('Text 2', $values[1]['text']);
-		$this->assertSame('example@example.com', $values[1]['single_schema']['inner_email']);
-		$this->assertSame('example@example.com', $values[1]['list_schema'][0]['inner_email']);
-		$this->assertSame(47, $values[1]['list_schema'][1]['inner_int']);
+		$this->assertSame('example@example.com', $values[1]['single_shape']['inner_email']);
+		$this->assertSame('example@example.com', $values[1]['list_shape'][0]['inner_email']);
+		$this->assertSame(47, $values[1]['list_shape'][1]['inner_int']);
 
 		$pristineValues = $result->pristineValues();
 		$this->assertSame(13, $pristineValues[0]['int']);
-		$this->assertSame(23, $pristineValues[0]['single_schema']['inner_int']);
-		$this->assertNull($pristineValues[0]['list_schema']);
+		$this->assertSame(23, $pristineValues[0]['single_shape']['inner_int']);
+		$this->assertNull($pristineValues[0]['list_shape']);
 		$this->assertSame('Text 2', $pristineValues[1]['text']);
-		$this->assertSame('example@example.com', $pristineValues[1]['single_schema']['inner_email']);
-		$this->assertSame('example@example.com', $pristineValues[1]['list_schema'][0]['inner_email']);
-		$this->assertSame('47', $pristineValues[1]['list_schema'][1]['inner_int']);
+		$this->assertSame('example@example.com', $pristineValues[1]['single_shape']['inner_email']);
+		$this->assertSame('example@example.com', $pristineValues[1]['list_shape'][0]['inner_email']);
+		$this->assertSame('47', $pristineValues[1]['list_shape'][1]['inner_int']);
 	}
 
-	public function testInvalidListSchema(): void
+	public function testInvalidListShape(): void
 	{
 		$testData = $this->getListData();
-		$schema = $this->getListSchema();
+		$shape = $this->getListShape();
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(5, $errors);
 		$this->assertSame('Required', $errors['map'][0]['text'][0]);
-		$this->assertSame('Required', $errors['map'][0]['single_schema']['inner_int'][0]);
-		$this->assertSame('Required', $errors['map'][1]['single_schema'][0]);
+		$this->assertSame('Required', $errors['map'][0]['single_shape']['inner_int'][0]);
+		$this->assertSame('Required', $errors['map'][1]['single_shape'][0]);
 		$this->assertSame('Required', $errors['map'][1]['text'][0]);
 		$this->assertSame('Invalid email address', $errors['map'][1]['email'][0]);
 		$this->assertSame('Shorter than the minimum length of 10 characters', $errors['map'][1]['email'][1]);
-		$this->assertSame('Invalid email address', $errors['map'][3]['single_schema']['inner_email'][0]);
-		$this->assertSame('Invalid number', $errors['map'][3]['list_schema'][0]['inner_int'][0]);
-		$this->assertSame('Invalid email address', $errors['map'][3]['list_schema'][2]['inner_email'][0]);
+		$this->assertSame('Invalid email address', $errors['map'][3]['single_shape']['inner_email'][0]);
+		$this->assertSame('Invalid number', $errors['map'][3]['list_shape'][0]['inner_int'][0]);
+		$this->assertSame('Invalid email address', $errors['map'][3]['list_shape'][2]['inner_email'][0]);
 	}
 
 	public function testGroupedErrors(): void
 	{
 		$testData = $this->getListData();
-		$schema = $this->getListSchema();
+		$shape = $this->getListShape();
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$groups = $result->errors(grouped: true)['errors'];
 		$this->assertCount(3, $groups);
@@ -836,13 +836,13 @@ class SchemaTest extends TestCase
 		$this->expectException(ValueError::class);
 		$this->expectExceptionMessage('must not be empty');
 
-		$schema = new class (langs: ['de', 'en']) extends Schema {
+		$shape = new class (langs: ['de', 'en']) extends Shape {
 			protected function rules(): void
 			{
 				$this->add('', 'Int', 'int');
 			}
 		};
-		$schema->validate([]);
+		$shape->validate([]);
 	}
 
 	public function testEmptyArraySkipsValidatorWithSkipNull(): void
@@ -851,13 +851,13 @@ class SchemaTest extends TestCase
 			'items' => [],
 		];
 
-		$schema = new Schema();
+		$shape = new Shape();
 		// Using 'in' validator which has skipNull=true
-		$schema->add('items', 'list', 'in:a,b,c');
+		$shape->add('items', 'list', 'in:a,b,c');
 
 		// Empty array should skip the 'in' validator (which has skipNull=true)
 		// and not produce an error
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertTrue($result->isValid());
 	}
 
@@ -867,11 +867,11 @@ class SchemaTest extends TestCase
 			'text' => 'test',
 		];
 
-		$schema = new Schema();
+		$shape = new Shape();
 		// Regex validator without a pattern (just 'regex' with no argument)
-		$schema->add('text', 'text', 'regex');
+		$shape->add('text', 'text', 'regex');
 
-		$result = $schema->validate($testData);
+		$result = $shape->validate($testData);
 		$this->assertFalse($result->isValid());
 		$errors = $result->errors();
 		$this->assertCount(1, $errors['errors']);
