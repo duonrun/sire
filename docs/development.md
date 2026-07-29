@@ -31,9 +31,10 @@ Sire uses Composer scripts for all routine quality checks.
 - Run static analysis: `composer types`
 - Run markdown linting: `composer docs:lint`
 - Run path coverage and line coverage checks: `composer coverage`
-- Run the full local pipeline: `composer ci`
+- Run the PHP pipeline: `composer ci`
+- Run the PHP pipeline plus markdown linting: `composer ci:full`
 
-Use `composer ci` before opening a pull request so your branch matches the project quality baseline.
+Use `composer ci` before opening a pull request so your branch matches the project quality baseline. Markdown linting needs Node (`npx`) and runs in CI regardless; use `composer ci:full` to check it locally.
 
 ## Work on documentation
 
