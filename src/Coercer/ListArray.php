@@ -22,7 +22,10 @@ final class ListArray implements Contract\Coercer
 	{
 		if (
 			is_array($pristine)
-			&& ($pristine === [] || array_keys($pristine) === range(0, count($pristine) - 1))
+				&& (
+					$pristine === []
+					|| array_keys($pristine) === range(0, count($pristine) - 1)
+				)
 		) {
 			return new Coercion($pristine, $pristine, empty: $pristine === []);
 		}

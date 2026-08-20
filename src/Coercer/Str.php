@@ -58,10 +58,10 @@ final class Str implements Contract\Coercer
 	{
 		return (
 			$value === null
-			|| is_string($value)
-			|| is_int($value)
-			|| is_float($value)
-			|| $value instanceof Stringable
+				|| is_string($value)
+				|| is_int($value)
+				|| is_float($value)
+				|| $value instanceof Stringable
 		);
 	}
 

@@ -1437,9 +1437,7 @@ class ShapeTest extends TestCase
 		$seen = [];
 		$shape = Shape::list();
 		$shape->add('first', 'string');
-		$shape->add('last', 'string')->finalize(static function (mixed $value, array $values) use (
-			&$seen,
-		): string {
+		$shape->add('last', 'string')->finalize(static function (mixed $value, array $values) use (&$seen): string {
 			$seen[] = $values;
 
 			return $values['first'] . ' ' . $value;

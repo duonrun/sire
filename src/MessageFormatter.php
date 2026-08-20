@@ -136,8 +136,8 @@ final readonly class MessageFormatter
 	{
 		return (
 			str_contains($template, '{{')
-			|| str_contains($template, '}}')
-			|| preg_match('/{(?:label|field|value|arg[1-9][0-9]*)}/', $template) === 1
+				|| str_contains($template, '}}')
+				|| preg_match('/{(?:label|field|value|arg[1-9][0-9]*)}/', $template) === 1
 		);
 	}
 }
